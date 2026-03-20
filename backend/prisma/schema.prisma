@@ -7,16 +7,16 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
-
 model User {
   id              Int              @id @default(autoincrement())
   fullName        String
   universityEmail String           @unique
   personalEmail   String
   studyYear       String
-  role            String
+  role            String           @default("student")
   passwordHash    String
+  loginAttempts   Int              @default(0)
+  lockUntil       DateTime?
   createdAt       DateTime         @default(now())
 
   events          Event[]          @relation("CreatedEvents")
@@ -41,11 +41,13 @@ model Event {
 model Participation {
   id        Int      @id @default(autoincrement())
   role      String
-  status    String
+  status    String   @default("registered")
 
   userId    Int
   eventId   Int
 
   user      User     @relation(fields: [userId], references: [id])
   event     Event    @relation(fields: [eventId], references: [id])
+
+  @@unique([userId, eventId])
 }

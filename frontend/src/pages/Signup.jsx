@@ -1,125 +1,102 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 function Signup() {
-  const [fullName, setFullName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [role, setRole] = useState("");
+  const [form, setForm] = useState({
+    fullName: "",
+    universityEmail: "",
+    personalEmail: "",
+    studyYear: "",
+    password: ""
+  });
+
   const navigate = useNavigate();
+  const { signup } = useAuth();
 
   const handleSignup = async (e) => {
     e.preventDefault();
 
+    const newUser = {
+      id: Date.now(),
+      fullName: form.fullName,
+      email: form.universityEmail,
+      password: form.password,
+      role: role,
+    };
+
     try {
-      const response = await fetch("http://localhost:5000/api/auth/signup", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          fullName,
-          universityEmail: email,
-          personalEmail: email,
-          studyYear: "Year 1",
-          role: "Student",
-          password
-        })
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        navigate("/login");
-      } else {
-        alert(data.message || "Signup failed");
-      }
-
+      signup(newUser);
+      navigate(`/${role}`);
     } catch (err) {
-      console.error(err);
-      alert("Server error");
+      alert(err.message);
     }
   };
 
   return (
-    <div
-      className="min-h-screen flex items-center justify-center px-4 bg-cover bg-center"
-      style={{ backgroundImage: "url('/login-bg.jpg')" }}
-    >
+    <div className="min-h-screen bg-kala-bg flex flex-col items-center justify-center px-4">
 
-      <div className="
-        backdrop-blur-xl
-        bg-white/20
-        border border-white/30
-        p-12
-        rounded-3xl
-        shadow-2xl
-        w-full max-w-md
-        text-white
-      ">
+      <Link to="/" className="absolute top-6 left-8 text-kala-gold font-bold text-xl">
+        MyUniLife
+      </Link>
 
-        <div className="flex items-center justify-center gap-3 mb-6">
-          <div className="w-10 h-10 bg-accent rounded-xl flex items-center justify-center text-white font-bold text-lg">
-            M
+      {!role ? (
+        <div className="text-center">
+          <h2 className="text-3xl font-bold mb-6">
+            Who are you? 😉
+          </h2>
+
+          <div className="grid grid-cols-2 gap-6">
+            {["student", "admin", "club", "guest"].map((r) => (
+              <button
+                key={r}
+                onClick={() => setRole(r)}
+                className="border-2 border-kala-byzantium px-8 py-6 rounded-xl hover:bg-kala-byzantium hover:text-white transition"
+              >
+                {r.toUpperCase()}
+              </button>
+            ))}
           </div>
-          <span className="text-xl font-semibold">
-            MyUniLife
-          </span>
         </div>
+      ) : (
+        <form
+          onSubmit={handleSignup}
+          className="bg-white p-10 rounded-2xl shadow-xl w-full max-w-md"
+        >
+          <h2 className="text-2xl font-bold text-kala-gold mb-6 text-center">
+            Signup as {role}
+          </h2>
 
-        <h2 className="text-2xl font-semibold text-center mb-2">
-          Join MyUniLife 🎓
-        </h2>
+          {Object.keys(form).map((field) => (
+            <input
+              key={field}
+              type={field === "password" ? "password" : "text"}
+              placeholder={field}
+              className="w-full border p-3 rounded-lg mb-4"
+              value={form[field]}
+              onChange={(e) =>
+                setForm({ ...form, [field]: e.target.value })
+              }
+              required
+            />
+          ))}
 
-        <p className="text-center text-white/80 mb-6">
-          Start building your college portfolio today
-        </p>
-
-        <form onSubmit={handleSignup} className="space-y-4">
-
-          <input
-            type="text"
-            placeholder="Full name"
-            className="w-full rounded-xl px-4 py-3 bg-white/30 placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-accent"
-            value={fullName}
-            onChange={(e) => setFullName(e.target.value)}
-            required
-          />
-
-          <input
-            type="email"
-            placeholder="University email"
-            className="w-full rounded-xl px-4 py-3 bg-white/30 placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-accent"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-
-          <input
-            type="password"
-            placeholder="At least 6 characters"
-            className="w-full rounded-xl px-4 py-3 bg-white/30 placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-accent"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-
-          <button
-            type="submit"
-            className="w-full bg-accent text-white py-3 rounded-xl font-medium hover:opacity-90 transition"
-          >
-            Create account
+          <button className="w-full bg-kala-gold py-3 rounded-lg font-semibold">
+            Signup
           </button>
 
+          <p className="text-center mt-4">
+            <button
+              type="button"
+              onClick={() => setRole("")}
+              className="text-kala-byzantium underline"
+            >
+              Change role
+            </button>
+          </p>
         </form>
-
-        <p className="text-center text-sm mt-6 text-white/80">
-          Already have an account?{" "}
-          <Link to="/login" className="text-accent font-medium">
-            Sign in
-          </Link>
-        </p>
-
-      </div>
+      )}
     </div>
   );
 }
