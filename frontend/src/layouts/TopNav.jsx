@@ -2,12 +2,15 @@ import { useNavigate } from "react-router-dom";
 import { useState, useRef, useEffect, useContext } from "react";
 import { useAuth } from "../context/AuthContext";
 import { ThemeContext } from "../context/ThemeContext";
+import ContactAdminModal from "../components/ContactAdminModal";
+import NotificationBell from "../components/NotificationBell";
 
 function TopNav({ toggleSidebar }) {
   const navigate = useNavigate();
   const { logout } = useAuth();
   const { theme, setTheme } = useContext(ThemeContext);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [isContactOpen, setIsContactOpen] = useState(false);
   const menuRef = useRef(null);
 
   useEffect(() => {
@@ -90,67 +93,66 @@ function TopNav({ toggleSidebar }) {
       </div>
 
       {/* RIGHT MENU */}
-      <div className="relative" ref={menuRef}>
+      <div className="relative z-50 flex items-center gap-3" ref={menuRef}>
+        <NotificationBell />
 
         <button
           onClick={() => setMenuOpen(!menuOpen)}
-          className="w-10 h-10 rounded-xl
-                     hover:bg-[#F08B51]/20 dark:hover:bg-[#DBAFA0]/20
-                     flex items-center justify-center text-[#333333] dark:text-[#F5F5F5]
-                     transition text-lg"
+          className="p-2 rounded-full hover:bg-[#F08B51]/20 dark:hover:bg-[#DBAFA0]/20 transition relative z-50 text-[#333333] dark:text-[#F5F5F5] font-bold cursor-pointer"
         >
           ⋮
         </button>
 
         {menuOpen && (
-          <div
-            className="absolute right-0 mt-3 w-60
-                       bg-[#DEE8CE] dark:bg-[#704264]
-                       rounded-2xl
-                       shadow-xl
-                       p-4 space-y-3 z-50 text-[#333333] dark:text-[#F5F5F5]"
-          >
-
-            <button
-              onClick={() => navigate("/student/portfolio")}
-              className="block w-full text-left px-3 py-2 rounded-xl hover:bg-[#F08B51]/20 dark:hover:bg-[#DBAFA0]/20 transition"
+          <div className="absolute right-2 top-full mt-2 w-52 max-w-[90vw] bg-[#E5E1DA] dark:bg-[#393E46] rounded-xl shadow-lg p-2 z-50 text-sm font-medium text-gray-700 dark:text-gray-200">
+              
+            <button 
+              onClick={() => {
+                const newTheme = theme === "light" ? "dark" : "light";
+                setTheme(newTheme);
+              }}
+              className="w-full text-left px-4 py-2 rounded-lg hover:bg-[#89A8B2]/20 dark:hover:bg-[#948979]/20 transition flex items-center gap-3"
             >
-              👤 Profile
+              Toggle Theme
             </button>
 
-            <button
-              onClick={() => navigate("/student/settings")}
-              className="block w-full text-left px-3 py-2 rounded-xl hover:bg-[#F08B51]/20 dark:hover:bg-[#DBAFA0]/20 transition"
+            <button 
+              onClick={() => { navigate("/student/portfolio"); setMenuOpen(false); }}
+              className="w-full text-left px-4 py-2 rounded-lg hover:bg-[#89A8B2]/20 dark:hover:bg-[#948979]/20 transition flex items-center gap-3"
             >
-              ⚙ Settings
+              Profile
             </button>
 
-            <button
-              onClick={() =>
-                setTheme(theme === "light" ? "dark" : "light")
-              }
-              className="block w-full text-left px-3 py-2 rounded-xl hover:bg-[#F08B51]/20 dark:hover:bg-[#DBAFA0]/20 transition"
+            <button 
+              onClick={() => { navigate("/student/settings"); setMenuOpen(false); }}
+              className="w-full text-left px-4 py-2 rounded-lg hover:bg-[#89A8B2]/20 dark:hover:bg-[#948979]/20 transition flex items-center gap-3"
             >
-              🌓 Toggle Theme
+              Settings
             </button>
 
-            <div className="border-t border-[#F08B51]/30 dark:border-[#DBAFA0]/30 pt-3">
+            <button 
+              onClick={() => { setIsContactOpen(true); setMenuOpen(false); }}
+              className="w-full text-left px-4 py-2 rounded-lg hover:bg-[#89A8B2]/20 dark:hover:bg-[#948979]/20 transition flex items-center gap-3"
+            >
+              Contact Admin
+            </button>
 
-              <button
-                onClick={handleLogout}
-                className="block w-full text-left px-3 py-2 rounded-xl
-                           text-red-500 hover:bg-red-50
-                           dark:hover:bg-red-900/30 transition"
-              >
-                🚪 Logout
-              </button>
+            <div className="my-1 border-t border-gray-300 dark:border-gray-600"></div>
 
-            </div>
-
+            <button 
+              onClick={handleLogout}
+              className="w-full text-left px-4 py-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/30 transition flex items-center gap-3 text-red-600 dark:text-red-400"
+            >
+              Logout
+            </button>
           </div>
         )}
 
       </div>
+
+      {isContactOpen && (
+        <ContactAdminModal onClose={() => setIsContactOpen(false)} />
+      )}
     </div>
   );
 }

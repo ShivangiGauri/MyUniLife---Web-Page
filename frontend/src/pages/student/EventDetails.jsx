@@ -35,6 +35,23 @@ function EventDetails() {
       const updated = [...registeredEvents, eventId];
       setRegisteredEvents(updated);
       localStorage.setItem("registeredEvents", JSON.stringify(updated));
+
+      const currentUser = JSON.parse(localStorage.getItem("currentUser")) || {};
+      const userEmail = currentUser.email || "student@myunilife.com";
+
+      const newNotification = {
+        id: Date.now(),
+        userEmail: userEmail,
+        role: "student",
+        title: "Registration Successful",
+        message: `You have successfully registered for ${event.title}`,
+        time: new Date().toLocaleString(),
+        read: false
+      };
+      
+      const existingNotifs = JSON.parse(localStorage.getItem("notifications")) || [];
+      localStorage.setItem("notifications", JSON.stringify([...existingNotifs, newNotification]));
+      window.dispatchEvent(new Event("notification-update"));
     }
   }
 

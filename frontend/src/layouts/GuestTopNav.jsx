@@ -2,12 +2,15 @@ import { useNavigate } from "react-router-dom";
 import { useState, useRef, useEffect, useContext } from "react";
 import { ThemeContext } from "../context/ThemeContext";
 import { useAuth } from "../context/AuthContext";
+import ContactAdminModal from "../components/ContactAdminModal";
+import NotificationBell from "../components/NotificationBell";
 
 function GuestTopNav({ toggleSidebar }) {
   const navigate = useNavigate();
   const { logout } = useAuth();
   const { theme, setTheme } = useContext(ThemeContext);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [isContactOpen, setIsContactOpen] = useState(false);
   const menuRef = useRef(null);
 
   useEffect(() => {
@@ -32,30 +35,64 @@ function GuestTopNav({ toggleSidebar }) {
           ☰
         </button>
       </div>
-      <div className="relative" ref={menuRef}>
+      <div className="relative z-50 flex items-center gap-3" ref={menuRef}>
+        <NotificationBell />
+        
         <button
           onClick={() => setMenuOpen(!menuOpen)}
-          className="w-10 h-10 rounded-xl hover:bg-[#F875AA]/20 flex items-center justify-center transition text-lg text-gray-800 dark:text-gray-200"
+          className="p-2 rounded-full hover:bg-[#F875AA]/20 flex items-center justify-center transition text-lg text-gray-800 dark:text-gray-200 cursor-pointer"
         >
           ⋮
         </button>
 
         {menuOpen && (
-          <div className="absolute right-0 mt-3 w-60 bg-[#FFF0AE] dark:bg-[#27391C] rounded-2xl shadow-xl p-4 space-y-3 z-50">
-            <button onClick={() => navigate("/guest")} className="block w-full text-left px-3 py-2 rounded-xl text-gray-800 dark:text-gray-200 hover:bg-[#F875AA]/20 transition font-medium">
-              🏠 Dashboard
+          <div className="absolute right-2 top-full mt-2 w-52 max-w-[90vw] bg-[#E5E1DA] dark:bg-[#393E46] rounded-xl shadow-lg p-2 z-50 text-sm font-medium text-gray-700 dark:text-gray-200">
+            <button 
+              onClick={() => {
+                const newTheme = theme === "light" ? "dark" : "light";
+                setTheme(newTheme);
+              }}
+              className="w-full text-left px-4 py-2 rounded-lg hover:bg-[#89A8B2]/20 dark:hover:bg-[#948979]/20 transition flex items-center gap-3"
+            >
+              Toggle Theme
             </button>
-            <button onClick={() => setTheme(theme === "light" ? "dark" : "light")} className="block w-full text-left px-3 py-2 rounded-xl text-gray-800 dark:text-gray-200 hover:bg-[#F875AA]/20 transition font-medium">
-              🌓 Toggle Theme
+
+            <button 
+              onClick={() => { navigate("/guest"); setMenuOpen(false); }}
+              className="w-full text-left px-4 py-2 rounded-lg hover:bg-[#89A8B2]/20 dark:hover:bg-[#948979]/20 transition flex items-center gap-3"
+            >
+              Dashboard
             </button>
-            <div className="border-t border-[#F875AA]/30 pt-3 mt-2">
-              <button onClick={handleLogout} className="block w-full text-left px-3 py-2 rounded-xl text-red-500 hover:bg-[#F875AA]/20 transition font-medium">
-                🚪 Logout
-              </button>
-            </div>
+
+            <button 
+              onClick={() => { navigate("/guest/settings"); setMenuOpen(false); }}
+              className="w-full text-left px-4 py-2 rounded-lg hover:bg-[#89A8B2]/20 dark:hover:bg-[#948979]/20 transition flex items-center gap-3"
+            >
+              Settings
+            </button>
+
+            <button 
+              onClick={() => { setIsContactOpen(true); setMenuOpen(false); }}
+              className="w-full text-left px-4 py-2 rounded-lg hover:bg-[#89A8B2]/20 dark:hover:bg-[#948979]/20 transition flex items-center gap-3"
+            >
+              Contact Admin
+            </button>
+
+            <div className="my-1 border-t border-gray-300 dark:border-gray-600"></div>
+
+            <button 
+              onClick={handleLogout}
+              className="w-full text-left px-4 py-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/30 transition flex items-center gap-3 text-red-600 dark:text-red-400"
+            >
+              Logout
+            </button>
           </div>
         )}
       </div>
+
+      {isContactOpen && (
+        <ContactAdminModal onClose={() => setIsContactOpen(false)} />
+      )}
     </div>
   );
 }

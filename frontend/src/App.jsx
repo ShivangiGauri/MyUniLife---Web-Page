@@ -33,6 +33,12 @@ import ArchiveEvents from "./pages/student/events/ArchiveEvents";
 
 /* ADMIN */
 import AdminDashboard from "./pages/admin/AdminDashboard";
+import Users from "./pages/admin/Users";
+import Clubs from "./pages/admin/Clubs";
+import Events from "./pages/admin/Events";
+import Support from "./pages/admin/Support";
+import Analytics from "./pages/admin/Analytics";
+import AdminSettings from "./pages/admin/AdminSettings";
 
 /* CLUB */
 import ClubDashboard from "./pages/club/ClubDashboard";
@@ -79,6 +85,12 @@ function App() {
       <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<AdminDashboard />} />
+          <Route path="users" element={<Users />} />
+          <Route path="clubs" element={<Clubs />} />
+          <Route path="events" element={<Events />} />
+          <Route path="support" element={<Support />} />
+          <Route path="analytics" element={<Analytics />} />
+          <Route path="settings" element={<AdminSettings />} />
         </Route>
       </Route>
 
