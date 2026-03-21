@@ -1,111 +1,117 @@
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
-const { PrismaClient } = require("@prisma/client");
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+import User from "../models/User.js";
 
-const prisma = new PrismaClient();
-
-/* SIGNUP */
-exports.signup = async (req, res) => {
+// REGISTER
+export const register = async (req, res) => {
   try {
-    const {
-      fullName,
-      universityEmail,
-      personalEmail,
-      studyYear,
-      role,
-      password
-    } = req.body;
+    let { name, email, password, role } = req.body;
 
-    const existingUser = await prisma.user.findUnique({
-      where: { universityEmail }
-    });
-
-    if (existingUser) {
-      return res.status(400).json({ message: "User already exists" });
+    if (!email || !password) {
+      return res.status(400).json({ success: false, message: "Email and password are required" });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    email = email.trim().toLowerCase();
 
-    const user = await prisma.user.create({
-      data: {
-        fullName,
-        universityEmail,
-        personalEmail,
-        studyYear,
-        role: role || "student",
-        passwordHash: hashedPassword
-      }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ success: false, message: "Invalid email format" });
+    }
+
+    if (password.length < 6) {
+      return res.status(400).json({ success: false, message: "Password must be at least 6 characters" });
+    }
+
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ success: false, message: "User already exists" });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    const user = await User.create({
+      name,
+      email,
+      password: hashedPassword,
+      role: role || "student"
     });
 
-    res.status(201).json({ message: "User created successfully" });
-
+    res.status(201).json({ success: true, message: "User registered successfully" });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Server error" });
+    console.error("Register Error:", error);
+    res.status(500).json({ success: false, message: "Server error" });
   }
 };
 
-/* LOGIN */
-exports.login = async (req, res) => {
+// LOGIN
+export const login = async (req, res) => {
   try {
-    const { universityEmail, password, role } = req.body;
+    let { email, password } = req.body;
 
-    await new Promise(r => setTimeout(r, 500));
+    if (!email || !password) {
+      return res.status(400).json({ success: false, message: "Email and password are required" });
+    }
 
-    const user = await prisma.user.findUnique({
-      where: { universityEmail }
-    });
+    email = email.trim().toLowerCase();
 
+    const user = await User.findOne({ email });
     if (!user) {
-      return res.status(400).json({ message: "Invalid email or password" });
+      return res.status(404).json({ success: false, message: "User not found" });
     }
 
-    if (user.lockUntil && user.lockUntil > new Date()) {
-      return res.status(403).json({ error: "Too many attempts. Try again later." });
-    }
+    const isMatch = await bcrypt.compare(password, user.password);
+    
+    console.log("Input password:", password);
+    console.log("Stored password:", user.password);
+    console.log("Match:", isMatch);
 
-    const isMatch = await bcrypt.compare(password, user.passwordHash);
-    const roleMatch = !(role && user.role !== role);
-
-    if (!isMatch || !roleMatch) {
-      user.loginAttempts += 1;
-      
-      if (user.loginAttempts >= 5) {
-        user.lockUntil = new Date(Date.now() + 15 * 60 * 1000);
-        user.loginAttempts = 0;
-      }
-
-      await prisma.user.update({
-        where: { id: user.id },
-        data: {
-          loginAttempts: user.loginAttempts,
-          lockUntil: user.lockUntil
-        }
-      });
-
-      return res.status(400).json({ message: "Invalid email or password" });
-    }
-
-    if (user.loginAttempts > 0 || user.lockUntil) {
-      await prisma.user.update({
-        where: { id: user.id },
-        data: { loginAttempts: 0, lockUntil: null }
-      });
+    if (!isMatch) {
+      return res.status(401).json({ success: false, message: "Invalid credentials" });
     }
 
     const token = jwt.sign(
-      { userId: user.id, role: user.role },
+      { id: user._id, role: user.role },
       process.env.JWT_SECRET,
       { expiresIn: "7d" }
     );
 
     res.json({
+      success: true,
       token,
-      role: user.role
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role
+      }
     });
 
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Server error" });
+    console.error("Login Error:", error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+// GET ME
+export const getMe = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select("-password");
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+    
+    res.json({
+      success: true,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role
+      }
+    });
+  } catch (error) {
+    console.error("GetMe Error:", error);
+    res.status(500).json({ success: false, message: "Server error" });
   }
 };

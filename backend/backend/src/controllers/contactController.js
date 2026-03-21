@@ -1,6 +1,8 @@
-import nodemailer from "nodemailer";
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
+const nodemailer = require('nodemailer');
 
-export const contactUser = async (req, res) => {
+const contactUser = async (req, res) => {
   try {
     const { email, subject, message } = req.body;
     
@@ -12,10 +14,8 @@ export const contactUser = async (req, res) => {
       return res.status(400).json({ error: "Message must be between 10 and 1000 characters" });
     }
     
-    // TODO: Replace with Mongoose User lookup
-    // const sender = await User.findById(req.userId);
-    // if (!sender) return res.status(401).json({ error: "Sender not found" });
-    const sender = { fullName: "User", universityEmail: email };
+    const sender = await prisma.user.findUnique({ where: { id: parseInt(req.userId) } });
+    if (!sender) return res.status(401).json({ error: "Sender not found" });
 
     const transporter = nodemailer.createTransport({
       service: "gmail",
@@ -41,3 +41,5 @@ export const contactUser = async (req, res) => {
     return res.status(500).json({ message: "Failed to send message. Please try again later." });
   }
 };
+
+module.exports = { contactUser };
