@@ -1,5 +1,17 @@
-node_modules
-dist
+# dependencies
+node_modules/
+
+# environment variables
 .env
-.DS_Store
+
+# logs
+*.log
+
+# build files
+dist/
+
+# uploads (user files)
 uploads/
+
+# OS files
+.DS_Store
