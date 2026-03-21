@@ -1,0 +1,116 @@
+/* =========================
+   KALA DESIGN SYSTEM
+   ========================= */
+
+:root {
+  --kala-gold: #c9a227;        /* Satin Sheen Gold */
+  --kala-byzantium: #702963;   /* Byzantium */
+  --kala-wisteria: #c9a0dc;    /* Wisteria */
+  --kala-bg: #f9f6f2;
+  --kala-dark: #111111;
+}
+
+/* =========================
+   Base Styles
+   ========================= */
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', sans-serif;
+  background-color: var(--kala-bg);
+  color: var(--kala-dark);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* =========================
+   Utility Classes
+   ========================= */
+
+.bg-kala-bg {
+  background-color: var(--kala-bg);
+}
+
+.text-kala-gold {
+  color: var(--kala-gold);
+}
+
+.text-kala-byzantium {
+  color: var(--kala-byzantium);
+}
+
+.bg-kala-gold {
+  background-color: var(--kala-gold);
+}
+
+.bg-kala-wisteria {
+  background-color: var(--kala-wisteria);
+}
+
+.border-kala-byzantium {
+  border-color: var(--kala-byzantium);
+}
+
+.text-kala-dark {
+  color: var(--kala-dark);
+}
+
+/* =========================
+   Premium Button Effects
+   ========================= */
+
+.kala-btn-primary {
+  background-color: var(--kala-gold);
+  color: black;
+  transition: all 0.3s ease;
+}
+
+.kala-btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(201, 162, 39, 0.25);
+}
+
+.kala-btn-outline {
+  border: 2px solid var(--kala-byzantium);
+  color: var(--kala-byzantium);
+  transition: all 0.3s ease;
+}
+
+.kala-btn-outline:hover {
+  background-color: var(--kala-byzantium);
+  color: white;
+}
+
+/* =========================
+   Navbar Smooth Hover
+   ========================= */
+
+nav a {
+  transition: all 0.25s ease;
+}
+
+nav a:hover {
+  color: var(--kala-byzantium);
+}
+
+/* =========================
+   Responsive Typography
+   ========================= */
+
+@media (max-width: 1024px) {
+  h2 {
+    font-size: 3rem !important;
+  }
+}
+
+@media (max-width: 768px) {
+  h2 {
+    font-size: 2.4rem !important;
+  }
+}
+
+@media (max-width: 480px) {
+  h2 {
+    font-size: 2rem !important;
+  }
+}
