@@ -2,7 +2,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import "./styles/kala.css";
 
 /* Public */
-import Landing from "./pages/Landing";
+import LandingPremium from "./pages/LandingPremium";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 
@@ -52,12 +52,19 @@ import GuestEvents from "./pages/guest/GuestEvents";
 import GuestInsights from "./pages/guest/GuestInsights";
 import CreateEvent from "./pages/guest/CreateEvent";
 
+/* SUPERADMIN */
+import SuperAdminLayout from "./layouts/SuperAdminLayout";
+import SuperAdminDashboard from "./pages/superadmin/Dashboard";
+import AdminManagement from "./pages/superadmin/AdminManagement";
+import UserManagement from "./pages/superadmin/UserManagement";
+import UniversityManagement from "./pages/superadmin/UniversityManagement";
+
 function App() {
   return (
     <Routes>
 
       {/* PUBLIC ROUTES */}
-      <Route path="/" element={<Landing />} />
+      <Route path="/" element={<LandingPremium />} />
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
 
@@ -66,6 +73,7 @@ function App() {
         <Route path="/student" element={<StudentLayout />}>
           <Route index element={<Navigate to="overview" />} />
           <Route path="overview" element={<Overview />} />
+          <Route path="dashboard" element={<Overview />} />
           <Route path="activities" element={<Activities />} />
           <Route path="portfolio" element={<Portfolio />} />
           <Route path="registered" element={<RegisteredEvents />} />
@@ -85,6 +93,7 @@ function App() {
       <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<AdminDashboard />} />
+          <Route path="dashboard" element={<AdminDashboard />} />
           <Route path="users" element={<Users />} />
           <Route path="clubs" element={<Clubs />} />
           <Route path="events" element={<Events />} />
@@ -125,6 +134,17 @@ function App() {
           <Route path="events" element={<GuestEvents />} />
           <Route path="insights" element={<GuestInsights />} />
           <Route path="create-event" element={<CreateEvent />} />
+        </Route>
+      </Route>
+
+      {/* SUPERADMIN ROUTES */}
+      <Route element={<ProtectedRoute allowedRoles={["superadmin"]} />}>
+        <Route path="/superadmin" element={<SuperAdminLayout />}>
+          <Route index element={<Navigate to="dashboard" />} />
+          <Route path="dashboard" element={<SuperAdminDashboard />} />
+          <Route path="admins" element={<AdminManagement />} />
+          <Route path="users" element={<UserManagement />} />
+          <Route path="universities" element={<UniversityManagement />} />
         </Route>
       </Route>
 

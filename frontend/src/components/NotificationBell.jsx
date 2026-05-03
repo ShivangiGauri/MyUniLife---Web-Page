@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { Bell } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 
@@ -8,7 +8,9 @@ export default function NotificationBell() {
   const menuRef = useRef(null);
   const { user } = useAuth();
 
-  const currentUser = JSON.parse(localStorage.getItem("currentUser")) || user || {};
+  const currentUser = useMemo(() => {
+    return JSON.parse(localStorage.getItem("currentUser")) || user || {};
+  }, [user]);
   
   const loadNotifications = () => {
     const allNotifs = JSON.parse(localStorage.getItem("notifications")) || [];

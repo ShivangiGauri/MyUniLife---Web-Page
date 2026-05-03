@@ -1,19 +1,10 @@
 import { Navigate, Outlet } from "react-router-dom";
 
-function ProtectedRoute({ children, allowedRoles }) {
-  const userString = localStorage.getItem("currentUser");
-  const user = userString ? JSON.parse(userString) : null;
+function ProtectedRoute({ children }) {
   const token = localStorage.getItem("token");
 
-  // If no auth tokens/users present at all securely bounce
-  if (!user && !token) {
-    return <Navigate to="/" />;
-  }
-
-  const role = localStorage.getItem("role")?.toLowerCase() || user?.role?.toLowerCase() || "student";
-
-  if (allowedRoles && !allowedRoles.includes(role)) {
-    return <Navigate to="/" />;
+  if (!token) {
+    return <Navigate to="/login" replace />;
   }
 
   return children ? children : <Outlet />;

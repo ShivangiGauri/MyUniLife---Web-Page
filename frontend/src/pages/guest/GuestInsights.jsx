@@ -142,8 +142,8 @@ export default function GuestInsights() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
             <div className="bg-[#FFF0AE] dark:bg-[#27391C] p-6 rounded-xl shadow-sm border border-transparent dark:border-gray-800">
               <h2 className="text-xl font-bold mb-6 text-gray-800 dark:text-gray-200">Category Distribution</h2>
-              <div className="w-full h-[300px] min-h-[300px]">
-                <ResponsiveContainer width="100%" height="100%">
+              <div style={{ width: "100%", height: "300px" }}>
+                <ResponsiveContainer width="100%" height={300}>
                   <PieChart>
                     <Pie data={pieData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={90} label>
                       {pieData.map((entry, index) => (
@@ -158,8 +158,8 @@ export default function GuestInsights() {
 
             <div className="bg-[#FFF0AE] dark:bg-[#27391C] p-6 rounded-xl shadow-sm border border-transparent dark:border-gray-800">
               <h2 className="text-xl font-bold mb-6 text-gray-800 dark:text-gray-200">Participation Trend</h2>
-              <div className="w-full h-[300px] min-h-[300px]">
-                <ResponsiveContainer width="100%" height="100%">
+              <div style={{ width: "100%", height: "300px" }}>
+                <ResponsiveContainer width="100%" height={300}>
                   <LineChart data={lineData} margin={{ top: 10, right: 30, left: -20, bottom: 0 }}>
                     <XAxis dataKey="date" tick={{fontSize: 12}} />
                     <YAxis />

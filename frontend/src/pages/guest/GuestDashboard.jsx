@@ -111,8 +111,8 @@ export default function GuestDashboard() {
           {categoryData.length === 0 ? (
             <p className="text-gray-500 text-center py-10">No data available</p>
           ) : (
-            <div className="h-72 w-full">
-              <ResponsiveContainer width="100%" height="100%">
+            <div style={{ width: "100%", height: "288px" }}>
+              <ResponsiveContainer width="100%" height={288}>
                 <PieChart>
                   <Pie data={categoryData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={90} label>
                     {categoryData.map((entry, index) => (
@@ -131,8 +131,8 @@ export default function GuestDashboard() {
           {participationData.length === 0 ? (
             <p className="text-gray-500 text-center py-10">No data available</p>
           ) : (
-            <div className="h-72 w-full">
-              <ResponsiveContainer width="100%" height="100%">
+            <div style={{ width: "100%", height: "288px" }}>
+              <ResponsiveContainer width="100%" height={288}>
                 <BarChart data={participationData} margin={{ top: 20, right: 30, left: -20, bottom: 5 }}>
                   <XAxis dataKey="name" tick={{fontSize: 12}} interval={0} angle={-15} textAnchor="end" />
                   <YAxis />

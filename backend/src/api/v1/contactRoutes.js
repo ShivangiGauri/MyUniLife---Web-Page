@@ -6,16 +6,8 @@ import { transporter } from "../../config/mailer.js";
 
 const router = express.Router();
 
-const contactLimiter = rateLimit({
-  windowMs: 60 * 1000, // 1 minute
-  max: 5,
-  message: { message: "Too many messages sent from this IP, please try again after a minute" },
-  standardHeaders: true,
-  legacyHeaders: false,
-});
-
 // Original route
-router.post('/', verifyToken, contactLimiter, contactUser);
+router.post('/', verifyToken, contactUser);
 
 // New Nodemailer route
 router.post("/send", async (req, res) => {

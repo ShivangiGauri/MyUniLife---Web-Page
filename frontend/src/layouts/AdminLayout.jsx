@@ -7,7 +7,7 @@ function AdminLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="flex min-h-screen bg-[#F1F0E8] dark:bg-[#222831]">
+    <div className="flex min-h-screen bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100">
       {/* Mobile Backdrop */}
       {sidebarOpen && (
         <div 

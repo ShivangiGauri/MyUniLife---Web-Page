@@ -13,8 +13,8 @@ function AdminSidebar({ onClose }) {
   const linkClass =
     "block px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200";
 
-  const activeClass = "bg-[#89A8B2] text-white shadow-sm";
-  const inactiveClass = "text-gray-700 dark:text-gray-300 hover:bg-[#89A8B2]/20";
+  const activeClass = "bg-indigo-600/10 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400 font-semibold";
+  const inactiveClass = "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700/50";
 
   const navItem = (path, label) => (
     <NavLink
@@ -30,7 +30,7 @@ function AdminSidebar({ onClose }) {
   );
 
   return (
-    <div className="w-full h-screen flex flex-col justify-between p-5 overflow-y-auto bg-[#B3C8CF] dark:bg-[#393E46] shadow-xl lg:shadow-none">
+    <div className="w-full h-screen flex flex-col justify-between p-5 overflow-y-auto bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 lg:shadow-none">
       
       {/* Top Section */}
       <div>

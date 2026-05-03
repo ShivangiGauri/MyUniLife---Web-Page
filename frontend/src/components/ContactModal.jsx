@@ -1,4 +1,7 @@
 import { useState } from "react";
+import { Input } from "./ui/Input";
+import { Button } from "./ui/Button";
+import { X } from "lucide-react";
 
 export default function ContactModal({ isOpen, onClose, receiverEmail }) {
   const [toEmail, setToEmail] = useState(receiverEmail || "");
@@ -15,7 +18,6 @@ export default function ContactModal({ isOpen, onClose, receiverEmail }) {
     setFeedback("");
 
     try {
-      // Basic Frontend validation
       if (!toEmail || !toEmail.includes("@")) {
         setStatus("error");
         setFeedback("Please enter a valid email address.");
@@ -73,77 +75,75 @@ export default function ContactModal({ isOpen, onClose, receiverEmail }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-      <div className="bg-white dark:bg-[#1E293B] w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
-        
-        <div className="p-6 md:p-8">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Send Message</h2>
-            <button onClick={onClose} className="text-gray-400 hover:text-red-500 transition text-2xl leading-none">&times;</button>
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+      <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" onClick={onClose} />
+      
+      <div className="bg-white dark:bg-slate-800 w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden relative z-10 animate-in zoom-in-95 duration-200 border border-slate-200 dark:border-slate-700">
+        <div className="p-8">
+          <div className="flex justify-between items-center mb-8">
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Send Message</h2>
+            <button onClick={onClose} className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors text-slate-400 hover:text-slate-600 dark:hover:text-slate-300">
+              <X size={20} />
+            </button>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <div>
-              <label className="block text-sm font-semibold mb-1.5 text-gray-700 dark:text-gray-300">To</label>
-              <input 
-                type="email" 
-                placeholder="Enter email address"
-                value={toEmail} 
-                onChange={(e) => setToEmail(e.target.value)}
-                className="w-full p-3 bg-white dark:bg-[#1E293B] border border-gray-300 dark:border-slate-600 rounded-lg text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-[#8E7DBE] dark:focus:ring-purple-500 transition-shadow" 
-                required
-              />
-            </div>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <Input
+              label="Recipient Email"
+              type="email"
+              placeholder="name@university.edu"
+              value={toEmail}
+              onChange={(e) => setToEmail(e.target.value)}
+              required
+            />
 
-            <div>
-              <label className="block text-sm font-semibold mb-1.5 text-gray-700 dark:text-gray-300">Subject</label>
-              <input 
-                type="text" 
-                placeholder="What is this regarding?"
-                value={subject} 
-                onChange={(e) => setSubject(e.target.value)} 
-                className="w-full p-3 bg-white dark:bg-[#1E293B] border border-gray-300 dark:border-slate-600 rounded-lg text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-[#8E7DBE] dark:focus:ring-purple-500 transition-shadow" 
-                required 
-              />
-            </div>
+            <Input
+              label="Subject"
+              type="text"
+              placeholder="What is this regarding?"
+              value={subject}
+              onChange={(e) => setSubject(e.target.value)}
+              required
+            />
 
-            <div>
-              <label className="block text-sm font-semibold mb-1.5 text-gray-700 dark:text-gray-300">Message</label>
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">Message</label>
               <textarea 
                 placeholder="Write your message here..."
                 value={message} 
                 onChange={(e) => setMessage(e.target.value)} 
                 rows="5"
-                className="w-full p-3 bg-white dark:bg-[#1E293B] border border-gray-300 dark:border-slate-600 rounded-lg text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-[#8E7DBE] dark:focus:ring-purple-500 transition-shadow resize-none" 
+                className="w-full p-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all resize-none" 
                 required 
-              ></textarea>
-              <p className="text-xs text-gray-500 mt-1.5 text-right font-medium">{message.length}/1000</p>
+              />
+              <p className="text-xs text-slate-400 text-right font-medium">{message.length}/1000</p>
             </div>
 
             {feedback && (
-              <div className={`p-3 rounded-lg text-sm text-center font-bold ${status === 'success' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400' : 'bg-red-100 text-red-600 dark:bg-red-900/40 dark:text-red-400'}`}>
+              <div className={`p-4 rounded-xl text-sm text-center font-bold animate-in fade-in slide-in-from-top-2 ${status === 'success' ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400' : 'bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400'}`}>
                 {feedback}
               </div>
             )}
 
-            <div className="flex gap-3 pt-2">
-              <button 
+            <div className="flex gap-4 pt-4">
+              <Button 
+                variant="secondary" 
                 type="button" 
                 onClick={onClose}
-                className="w-1/3 py-3 font-bold rounded-lg bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-slate-600 transition"
+                className="flex-1"
               >
                 Cancel
-              </button>
-              <button 
+              </Button>
+              <Button 
                 type="submit" 
-                disabled={status === 'loading' || status === 'success' || !toEmail || !toEmail.includes('@') || message.length < 10}
-                className="flex-1 py-3 font-bold rounded-lg bg-[#8E7DBE] dark:bg-purple-600 text-white shadow-md hover:bg-[#7a6bab] dark:hover:bg-purple-500 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                isLoading={status === 'loading'}
+                disabled={status === 'success' || !toEmail || !toEmail.includes('@') || message.length < 10}
+                className="flex-1"
               >
-                {status === 'loading' ? 'Sending...' : 'Send Message'}
-              </button>
+                Send Message
+              </Button>
             </div>
           </form>
-
         </div>
       </div>
     </div>

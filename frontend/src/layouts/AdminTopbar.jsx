@@ -49,7 +49,7 @@ function AdminTopbar({ onMenuClick }) {
   }, []);
 
   return (
-    <div className="h-20 bg-[#E5E1DA] dark:bg-[#393E46] flex items-center justify-between px-6 shadow-sm sticky top-0 z-50 w-full">
+    <div className="h-20 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between px-6 shadow-sm sticky top-0 z-50 w-full">
       
       {/* Left side */}
       <div className="flex items-center gap-4 relative z-50">
@@ -63,7 +63,7 @@ function AdminTopbar({ onMenuClick }) {
         </button>
 
         {/* Search */}
-        <div className="hidden sm:flex items-center bg-white dark:bg-[#222831] px-4 py-2.5 rounded-xl border-none shadow-sm focus-within:ring-2 focus-within:ring-[#89A8B2] transition-all relative z-50">
+        <div className="hidden sm:flex items-center bg-slate-50 dark:bg-slate-900 px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm focus-within:ring-2 focus-within:ring-indigo-600 transition-all relative z-50">
           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
             <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
           </svg>
@@ -80,7 +80,7 @@ function AdminTopbar({ onMenuClick }) {
         <NotificationBell />
         
         {/* Profile Avatar */}
-        <div className="h-10 w-10 rounded-full bg-gradient-to-tr from-[#89A8B2] to-[#B3C8CF] shadow-inner flex items-center justify-center text-white font-bold cursor-pointer hover:scale-105 transition duration-200 relative z-50">
+        <div className="h-10 w-10 rounded-full bg-gradient-to-tr from-indigo-500 to-indigo-600 shadow-inner flex items-center justify-center text-white font-bold cursor-pointer hover:scale-105 transition duration-200 relative z-50">
           A
         </div>
 
@@ -88,17 +88,17 @@ function AdminTopbar({ onMenuClick }) {
         <div className="relative z-50" ref={menuRef}>
           <button 
             onClick={() => setOpen(!open)}
-            className="p-2 rounded-full hover:bg-[#89A8B2]/20 dark:hover:bg-[#948979]/20 transition relative z-50 text-gray-600 dark:text-gray-300 font-bold cursor-pointer"
+            className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 transition relative z-50 text-slate-600 dark:text-slate-300 font-bold cursor-pointer"
           >
             ⋮
           </button>
 
           {open && (
-            <div className="absolute right-2 top-full mt-2 w-52 max-w-[90vw] bg-[#E5E1DA] dark:bg-[#393E46] rounded-xl shadow-lg p-2 z-50 text-sm font-medium text-gray-700 dark:text-gray-200">
+            <div className="absolute right-2 top-full mt-2 w-52 max-w-[90vw] bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-lg p-2 z-50 text-sm font-medium text-slate-700 dark:text-slate-200">
               
               <button 
                 onClick={toggleTheme}
-                className="w-full text-left px-4 py-2 rounded-lg hover:bg-[#89A8B2]/20 dark:hover:bg-[#948979]/20 transition flex items-center gap-3"
+                  className="w-full text-left px-4 py-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition flex items-center gap-3"
               >
                 {theme === "light" ? <Moon size={18} /> : <Sun size={18} />}
                 Toggle Theme
@@ -106,7 +106,7 @@ function AdminTopbar({ onMenuClick }) {
 
               <button 
                 onClick={() => { navigate(role === "admin" ? "/admin/users" : `/${role}/portfolio`); setOpen(false); }}
-                className="w-full text-left px-4 py-2 rounded-lg hover:bg-[#89A8B2]/20 dark:hover:bg-[#948979]/20 transition flex items-center gap-3"
+                  className="w-full text-left px-4 py-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition flex items-center gap-3"
               >
                 <User size={18} />
                 Profile
@@ -114,7 +114,7 @@ function AdminTopbar({ onMenuClick }) {
 
               <button 
                 onClick={() => { navigate(role === "admin" ? "/admin/settings" : `/${role}/settings`); setOpen(false); }}
-                className="w-full text-left px-4 py-2 rounded-lg hover:bg-[#89A8B2]/20 dark:hover:bg-[#948979]/20 transition flex items-center gap-3"
+                  className="w-full text-left px-4 py-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition flex items-center gap-3"
               >
                 <Settings size={18} />
                 Settings
@@ -123,7 +123,7 @@ function AdminTopbar({ onMenuClick }) {
               {role !== "admin" ? (
                 <button 
                   onClick={() => { navigate(`/${role}/contact`); setOpen(false); }}
-                  className="w-full text-left px-4 py-2 rounded-lg hover:bg-[#89A8B2]/20 dark:hover:bg-[#948979]/20 transition flex items-center gap-3"
+                    className="w-full text-left px-4 py-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition flex items-center gap-3"
                 >
                   <Mail size={18} />
                   Contact Admin
@@ -131,14 +131,14 @@ function AdminTopbar({ onMenuClick }) {
               ) : (
                 <button 
                   onClick={() => { navigate("/admin/support"); setOpen(false); }}
-                  className="w-full text-left px-4 py-2 rounded-lg hover:bg-[#89A8B2]/20 dark:hover:bg-[#948979]/20 transition flex items-center gap-3"
+                    className="w-full text-left px-4 py-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition flex items-center gap-3"
                 >
                   <Mail size={18} />
                   View Support Inbox
                 </button>
               )}
 
-              <div className="my-1 border-t border-gray-300 dark:border-gray-600"></div>
+              <div className="my-1 border-t border-slate-200 dark:border-slate-700"></div>
 
               <button 
                 onClick={handleLogout}

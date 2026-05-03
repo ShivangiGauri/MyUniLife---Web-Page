@@ -207,8 +207,8 @@ function Portfolio() {
               
               <div className="bg-[#DEE8CE] dark:bg-[#704264] p-6 rounded-2xl shadow-sm hover:scale-[1.02] transition duration-200">
                 <h3 className="text-lg font-bold mb-4 text-center">Category Distribution</h3>
-                <div className="h-64 w-full">
-                  <ResponsiveContainer width="100%" height="100%">
+                <div style={{ width: "100%", height: "300px" }}>
+                  <ResponsiveContainer width="100%" height={300}>
                     <PieChart>
                       <Pie
                         data={categoryData}
@@ -231,8 +231,8 @@ function Portfolio() {
 
               <div className="bg-[#DEE8CE] dark:bg-[#704264] p-6 rounded-2xl shadow-sm hover:scale-[1.02] transition duration-200">
                 <h3 className="text-lg font-bold mb-4 text-center">Location Distribution</h3>
-                <div className="h-64 w-full">
-                  <ResponsiveContainer width="100%" height="100%">
+                <div style={{ width: "100%", height: "300px" }}>
+                  <ResponsiveContainer width="100%" height={300}>
                     <BarChart data={cityData}>
                       <XAxis dataKey="city" stroke="#8884d8" />
                       <YAxis />

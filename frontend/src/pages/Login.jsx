@@ -1,122 +1,99 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { loginUser } from "../services/authService";
+import { Card } from "../components/ui/Card";
+import { Input } from "../components/ui/Input";
+import { Button } from "../components/ui/Button";
 
 function Login() {
-  const [role, setRole] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
-  const [suggestedRole, setSuggestedRole] = useState(null);
+  const [loading, setLoading] = useState(false);
+  
   const navigate = useNavigate();
   const { login } = useAuth();
 
   const handleLogin = async (e) => {
     e.preventDefault();
-
-    if (!role) {
-      alert("Please select your role first.");
-      return;
-    }
-
     setErrorMsg("");
-    setSuggestedRole(null);
+    setLoading(true);
 
-    const users = JSON.parse(localStorage.getItem("users")) || [];
+    try {
+      const data = await loginUser(email, password);
+      login(data.token, data.user);
+      
+      const role = data.user.role;
+      if (role === "student") navigate("/student/dashboard");
+      else if (role === "club") navigate("/club/dashboard");
+      else if (role === "admin") navigate("/admin/dashboard");
+      else if (role === "superadmin") navigate("/superadmin/dashboard");
+      else navigate("/guest/dashboard");
 
-    const foundUser = users.find(
-      (u) =>
-        u.email === email &&
-        u.password === password &&
-        u.role === role
-    );
-
-    if (!foundUser) {
-      setErrorMsg("Invalid email or password");
-      return;
+    } catch (err) {
+      if (err.response && err.response.data && err.response.data.message) {
+        setErrorMsg(err.response.data.message);
+      } else {
+        setErrorMsg("Server error. Please try again later.");
+      }
+    } finally {
+      setLoading(false);
     }
-
-    login(foundUser);
-    navigate(`/${foundUser.role}`);
   };
 
   return (
-    <div className="min-h-screen bg-kala-bg flex flex-col items-center justify-center px-4">
-
-      <Link to="/" className="absolute top-6 left-8 text-kala-gold font-bold text-xl">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex flex-col items-center justify-center px-4 relative">
+      <Link to="/" className="absolute top-8 left-8 text-indigo-600 dark:text-indigo-400 font-bold text-2xl tracking-tight">
         MyUniLife
       </Link>
 
-      {!role ? (
-        <div className="text-center">
-          <h2 className="text-3xl font-bold mb-6">
-            Who are you? 😉
-          </h2>
-
-          <div className="grid grid-cols-2 gap-6">
-            {["student", "admin", "club", "guest"].map((r) => (
-              <button
-                key={r}
-                onClick={() => setRole(r)}
-                className="border-2 border-kala-byzantium px-8 py-6 rounded-xl hover:bg-kala-byzantium hover:text-white transition"
-              >
-                {r.toUpperCase()}
-              </button>
-            ))}
-          </div>
+      <Card className="w-full max-w-md p-10">
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Welcome back</h1>
+          <p className="text-slate-500 dark:text-slate-400 mt-2">Please enter your details to sign in</p>
         </div>
-      ) : (
-        <form
-          onSubmit={handleLogin}
-          className="bg-white p-10 rounded-2xl shadow-xl w-full max-w-md"
-        >
-          <h2 className="text-2xl font-bold text-kala-gold mb-6 text-center">
-            Login as {role}
-          </h2>
 
+        <form onSubmit={handleLogin} className="space-y-6">
           {errorMsg && (
-            <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-xl text-center flex flex-col items-center">
-              <p className="text-red-700 dark:text-red-400 font-bold text-sm">
-                {errorMsg}
-              </p>
+            <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-900/30 rounded-xl text-center">
+              <p className="text-red-600 dark:text-red-400 font-semibold text-sm">{errorMsg}</p>
             </div>
           )}
 
-          <input
+          <Input
+            label="Email Address"
             type="email"
-            placeholder="University Email"
-            className="w-full border p-3 rounded-lg mb-4"
+            placeholder="name@university.edu"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
           />
 
-          <input
+          <Input
+            label="Password"
             type="password"
-            placeholder="Password"
-            className="w-full border p-3 rounded-lg mb-6"
+            placeholder="••••••••"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
           />
 
-          <button className="w-full bg-kala-gold py-3 rounded-lg font-semibold">
-            Login
-          </button>
+          <Button 
+            type="submit"
+            className="w-full"
+            isLoading={loading}
+          >
+            Sign in
+          </Button>
 
-          <p className="text-center mt-4">
-            <button
-              type="button"
-              onClick={() => setRole("")}
-              className="text-kala-byzantium underline"
-            >
-              Change role
-            </button>
+          <p className="text-center text-slate-500 dark:text-slate-400 text-sm">
+            Don't have an account? <Link to="/signup" className="text-indigo-600 dark:text-indigo-400 font-semibold hover:underline">Create an account</Link>
           </p>
         </form>
-      )}
+      </Card>
     </div>
   );
 }
 
-export default Login;
+export default Login;

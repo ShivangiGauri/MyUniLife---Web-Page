@@ -7,7 +7,7 @@ export default function StudentLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-[#FFF8E8] dark:bg-[#49243E] text-[#333333] dark:text-[#F5F5F5] transition-colors duration-300 flex overflow-x-hidden">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100 transition-colors duration-300 flex overflow-x-hidden">
 
       {/* Mobile Sidebar Overlay */}
       {sidebarOpen && (
@@ -19,7 +19,7 @@ export default function StudentLayout() {
 
       {/* Sidebar Wrapper (Fixed Navigation) */}
       <div 
-        className={`fixed left-0 top-0 h-screen z-50 transform bg-[#DEE8CE] dark:bg-[#704264] border-r border-[#E9E5E1] dark:border-[#49243E]
+        className={`fixed left-0 top-0 h-screen z-50 transform bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700
         transition-transform duration-300 ease-in-out 
         md:translate-x-0 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} 
         w-64 md:w-56 lg:w-64`}

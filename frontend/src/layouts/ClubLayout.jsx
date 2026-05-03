@@ -7,7 +7,7 @@ export default function ClubLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-[#F7CFD8] dark:bg-[#1A1A1D] text-gray-800 dark:text-gray-200 transition-colors duration-300 flex overflow-x-hidden">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100 transition-colors duration-300 flex overflow-x-hidden">
       {/* Mobile Sidebar Overlay */}
       {sidebarOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden" onClick={() => setSidebarOpen(false)} />
@@ -15,7 +15,7 @@ export default function ClubLayout() {
 
       {/* Sidebar Wrapper */}
       <div 
-        className={`fixed left-0 top-0 h-screen z-50 transform bg-[#F7CFD8] dark:bg-[#1A1A1D] border-r border-[#A6D6D6] dark:border-[#3B1C32]
+        className={`fixed left-0 top-0 h-screen z-50 transform bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700
         transition-transform duration-300 ease-in-out md:translate-x-0 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} w-64 md:w-56 lg:w-64`}
       >
         <ClubSidebar onClose={() => setSidebarOpen(false)} />

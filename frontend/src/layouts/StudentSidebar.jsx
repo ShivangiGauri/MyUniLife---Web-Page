@@ -13,8 +13,8 @@ function StudentSidebar({ onClose }) {
   const linkClass =
     "block px-4 py-2 rounded-lg text-sm font-medium transition-colors";
 
-  const activeClass = "bg-[#F08B51] text-white dark:bg-[#BB8493] dark:text-white";
-  const inactiveClass = "text-[#333333] dark:text-[#F5F5F5] hover:bg-[#F08B51]/20 dark:hover:bg-[#DBAFA0]/20";
+  const activeClass = "bg-indigo-600/10 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400 font-semibold";
+  const inactiveClass = "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700/50";
 
   const navItem = (path, label) => (
     <NavLink

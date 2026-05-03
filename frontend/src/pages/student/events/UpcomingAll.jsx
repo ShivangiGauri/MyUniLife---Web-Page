@@ -2,7 +2,6 @@ import { events } from "../../../data/events.js";
 import EventCard from "../../../components/EventCard";
 
 function UpcomingAll() {
-  console.log(events);
   const upcomingEvents = events
     .filter((event) => event.lifecycle === "upcoming")
     .sort((a, b) => new Date(a.startDate) - new Date(b.startDate));

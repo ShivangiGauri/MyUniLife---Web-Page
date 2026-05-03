@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { Card } from "../components/ui/Card";
+import { Input } from "../components/ui/Input";
+import { Button } from "../components/ui/Button";
 
 function Signup() {
   const [role, setRole] = useState("");
@@ -8,94 +11,154 @@ function Signup() {
     fullName: "",
     universityEmail: "",
     personalEmail: "",
-    studyYear: "",
     password: ""
   });
-
+  const [errorMsg, setErrorMsg] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const { signup } = useAuth();
+  const { login } = useAuth();
 
   const handleSignup = async (e) => {
     e.preventDefault();
-
-    const newUser = {
-      id: Date.now(),
-      fullName: form.fullName,
-      email: form.universityEmail,
-      password: form.password,
-      role: role,
-    };
+    setErrorMsg("");
+    setLoading(true);
 
     try {
-      signup(newUser);
-      navigate(`/${role}`);
+      const res = await fetch("http://localhost:5000/api/v1/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...form, role })
+      });
+      const data = await res.json();
+      
+      if (data.success && data.token) {
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("role", data.role);
+        login(data.token, data.user);
+        
+        let targetRole = data.user.role;
+        if (targetRole === "student") navigate("/student/dashboard");
+        else if (targetRole === "club") navigate("/club/dashboard");
+        else if (targetRole === "admin") navigate("/admin/dashboard");
+        else if (targetRole === "superadmin") navigate("/superadmin/dashboard");
+        else navigate("/guest/dashboard");
+      } else {
+        setErrorMsg(data.message || "Signup failed");
+      }
     } catch (err) {
-      alert(err.message);
+      setErrorMsg("Server error");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-kala-bg flex flex-col items-center justify-center px-4">
-
-      <Link to="/" className="absolute top-6 left-8 text-kala-gold font-bold text-xl">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex flex-col items-center justify-center px-4 relative">
+      <Link to="/" className="absolute top-8 left-8 text-indigo-600 dark:text-indigo-400 font-bold text-2xl tracking-tight">
         MyUniLife
       </Link>
 
       {!role ? (
-        <div className="text-center">
-          <h2 className="text-3xl font-bold mb-6">
-            Who are you? 😉
-          </h2>
+        <div className="w-full max-w-2xl text-center space-y-8">
+          <div className="space-y-2">
+            <h2 className="text-4xl font-bold text-slate-900 dark:text-white">Join the community</h2>
+            <p className="text-slate-500 dark:text-slate-400 text-lg">Choose how you want to experience MyUniLife</p>
+          </div>
 
-          <div className="grid grid-cols-2 gap-6">
-            {["student", "admin", "club", "guest"].map((r) => (
-              <button
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            {["student", "club", "guest"].map((r) => (
+              <Card 
                 key={r}
                 onClick={() => setRole(r)}
-                className="border-2 border-kala-byzantium px-8 py-6 rounded-xl hover:bg-kala-byzantium hover:text-white transition"
+                className="group cursor-pointer p-8 flex flex-col items-center gap-4 hover:border-indigo-600 dark:hover:border-indigo-400 transition-all active:scale-95"
               >
-                {r.toUpperCase()}
-              </button>
+                <div className="w-16 h-16 rounded-2xl bg-slate-50 dark:bg-slate-900/50 flex items-center justify-center text-3xl group-hover:bg-indigo-50 dark:group-hover:bg-indigo-900/20 transition-colors">
+                  {r === "student" ? "🎓" : r === "club" ? "🏢" : "👋"}
+                </div>
+                <div className="space-y-1">
+                  <h3 className="text-xl font-bold text-slate-900 dark:text-white capitalize">{r}</h3>
+                  <p className="text-xs text-slate-500 uppercase tracking-widest font-medium">Register as</p>
+                </div>
+              </Card>
             ))}
           </div>
+
+          <p className="text-slate-500 dark:text-slate-400">
+            Already have an account? <Link to="/login" className="text-indigo-600 dark:text-indigo-400 font-bold hover:underline">Sign in</Link>
+          </p>
         </div>
       ) : (
-        <form
-          onSubmit={handleSignup}
-          className="bg-white p-10 rounded-2xl shadow-xl w-full max-w-md"
-        >
-          <h2 className="text-2xl font-bold text-kala-gold mb-6 text-center">
-            Signup as {role}
-          </h2>
+        <Card className="w-full max-w-md p-10">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-bold text-slate-900 dark:text-white">Create Account</h2>
+            <p className="text-slate-500 dark:text-slate-400 mt-2">Joining as a <span className="text-indigo-600 dark:text-indigo-400 font-bold capitalize">{role}</span></p>
+          </div>
+          
+          <form onSubmit={handleSignup} className="space-y-6">
+            {errorMsg && (
+              <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-900/30 rounded-xl text-center">
+                <p className="text-red-600 dark:text-red-400 font-semibold text-sm">{errorMsg}</p>
+              </div>
+            )}
 
-          {Object.keys(form).map((field) => (
-            <input
-              key={field}
-              type={field === "password" ? "password" : "text"}
-              placeholder={field}
-              className="w-full border p-3 rounded-lg mb-4"
-              value={form[field]}
-              onChange={(e) =>
-                setForm({ ...form, [field]: e.target.value })
-              }
+            <Input
+              label="Full Name"
+              placeholder="John Doe"
+              value={form.fullName}
+              onChange={(e) => setForm({ ...form, fullName: e.target.value })}
               required
             />
-          ))}
 
-          <button className="w-full bg-kala-gold py-3 rounded-lg font-semibold">
-            Signup
-          </button>
+            {(role === "student" || role === "club") && (
+              <Input
+                label="University Email"
+                type="email"
+                placeholder="john@university.edu"
+                value={form.universityEmail}
+                onChange={(e) => setForm({ ...form, universityEmail: e.target.value })}
+                required
+              />
+            )}
 
-          <p className="text-center mt-4">
-            <button
-              type="button"
-              onClick={() => setRole("")}
-              className="text-kala-byzantium underline"
+            <Input
+              label="Personal Email"
+              type="email"
+              placeholder="john.doe@gmail.com"
+              value={form.personalEmail}
+              onChange={(e) => setForm({ ...form, personalEmail: e.target.value })}
+              required
+            />
+
+            <Input
+              label="Password"
+              type="password"
+              placeholder="Min 6 characters"
+              value={form.password}
+              onChange={(e) => setForm({ ...form, password: e.target.value })}
+              required
+              minLength={6}
+            />
+
+            <Button 
+              type="submit" 
+              className="w-full"
+              isLoading={loading}
             >
-              Change role
-            </button>
-          </p>
-        </form>
+              Create Account
+            </Button>
+
+            <p className="text-center">
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={() => setRole("")} 
+                className="text-slate-500"
+              >
+                Change role
+              </Button>
+            </p>
+          </form>
+        </Card>
       )}
     </div>
   );

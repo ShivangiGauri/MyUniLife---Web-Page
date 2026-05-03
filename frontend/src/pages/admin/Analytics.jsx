@@ -46,8 +46,8 @@ export default function Analytics() {
         {/* Line Chart Card */}
         <div className="bg-[#E5E1DA] dark:bg-[#393E46] rounded-2xl shadow-sm p-6 hover:scale-[1.02] transition duration-200">
           <h2 className="text-lg font-bold text-gray-800 dark:text-white mb-6">Participation Over Time</h2>
-          <div className="w-full h-[300px]">
-            <ResponsiveContainer width="100%" height="100%">
+          <div style={{ width: "100%", height: "300px" }}>
+            <ResponsiveContainer width="100%" height={300}>
               <LineChart data={lineData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#ccc" opacity={0.5} />
                 <XAxis dataKey="name" stroke="#8884d8" />
@@ -70,8 +70,8 @@ export default function Analytics() {
         {/* Pie Chart Card */}
         <div className="bg-[#E5E1DA] dark:bg-[#393E46] rounded-2xl shadow-sm p-6 hover:scale-[1.02] transition duration-200">
           <h2 className="text-lg font-bold text-gray-800 dark:text-white mb-6">Event Categories Distribution</h2>
-          <div className="w-full h-[300px]">
-            <ResponsiveContainer width="100%" height="100%">
+          <div style={{ width: "100%", height: "300px" }}>
+            <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 <Pie
                   data={pieData}
