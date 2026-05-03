@@ -11,8 +11,12 @@ import uploadRoutes from "./api/v1/uploadRoutes.js";
 import adminRoutes from "./api/v1/adminRoutes.js";
 import superadminRoutes from "./api/v1/superadminRoutes.js";
 import { getEvents, createEvent } from "./controllers/eventController.js";
+import { initCronJobs } from "./jobs/cronJobs.js";
 
 dotenv.config();
+
+// Initialize Cron Jobs
+initCronJobs();
 
 const app = express();
 
