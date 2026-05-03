@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, AreaChart, Area, PieChart, Pie, Cell } from "recharts";
-import { Download, Filter, Calendar, Users, TrendingUp, Award } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area, PieChart, Pie, Cell } from "recharts";
+import { Download, Calendar } from "lucide-react";
 import api from "../../api/api";
 
 function Analytics() {
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState({
     userGrowth: [],
@@ -12,16 +14,22 @@ function Analytics() {
   });
 
   useEffect(() => {
+    // Role Protection
+    const role = localStorage.getItem("role");
+    if (role !== "admin") {
+      navigate("/login");
+      return;
+    }
     fetchAnalytics();
-  }, []);
+  }, [navigate]);
 
   const fetchAnalytics = async () => {
     try {
       const response = await api.get("/admin/analytics");
-      setData(response.data);
+      setData(response.data || { userGrowth: [], eventParticipation: [], activeVsInactive: [] });
     } catch (error) {
       console.error("Error fetching analytics:", error);
-      // Mock data
+      // Fallback/Mock
       setData({
         userGrowth: [
           { month: 'Jan', students: 400, clubs: 24 },
@@ -59,7 +67,7 @@ function Analytics() {
             <Calendar size={18} />
             <span>Custom Range</span>
           </button>
-          <button className="flex items-center gap-2 px-4 py-2 bg-[var(--color-primary)] text-white rounded-xl font-bold shadow-lg shadow-[var(--color-primary)]/20 hover:scale-105 transition">
+          <button className="flex items-center gap-2 px-4 py-2 bg-[#285A48] text-white rounded-xl font-bold shadow-lg shadow-[#285A48]/20 hover:scale-105 transition">
             <Download size={18} />
             <span>Export Report</span>
           </button>
@@ -69,13 +77,13 @@ function Analytics() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 bg-white dark:bg-slate-800 p-8 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700">
           <h3 className="text-xl font-black text-slate-900 dark:text-white mb-8">User Growth Trend</h3>
-          <div className="h-80 w-full">
+          <div style={{ width: "100%", height: "300px" }}>
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={data.userGrowth}>
+              <AreaChart data={data.userGrowth || []}>
                 <defs>
                   <linearGradient id="colorStudents" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="var(--color-primary)" stopOpacity={0.1}/>
-                    <stop offset="95%" stopColor="var(--color-primary)" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="#285A48" stopOpacity={0.1}/>
+                    <stop offset="95%" stopColor="#285A48" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
@@ -84,7 +92,7 @@ function Analytics() {
                 <Tooltip 
                   contentStyle={{borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)'}}
                 />
-                <Area type="monotone" dataKey="students" stroke="var(--color-primary)" strokeWidth={4} fillOpacity={1} fill="url(#colorStudents)" />
+                <Area type="monotone" dataKey="students" stroke="#285A48" strokeWidth={4} fillOpacity={1} fill="url(#colorStudents)" />
                 <Area type="monotone" dataKey="clubs" stroke="#408A71" strokeWidth={4} fill="transparent" />
               </AreaChart>
             </ResponsiveContainer>
@@ -93,11 +101,11 @@ function Analytics() {
 
         <div className="bg-white dark:bg-slate-800 p-8 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700">
           <h3 className="text-xl font-black text-slate-900 dark:text-white mb-8">Active vs Inactive</h3>
-          <div className="h-64 w-full">
+          <div style={{ width: "100%", height: "260px" }}>
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
-                  data={data.activeVsInactive}
+                  data={data.activeVsInactive || []}
                   cx="50%"
                   cy="50%"
                   innerRadius={60}
@@ -105,8 +113,8 @@ function Analytics() {
                   paddingAngle={5}
                   dataKey="value"
                 >
-                  {data.activeVsInactive.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  {(data.activeVsInactive || []).map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry?.color || '#cbd5e1'} />
                   ))}
                 </Pie>
                 <Tooltip />
@@ -114,13 +122,13 @@ function Analytics() {
             </ResponsiveContainer>
           </div>
           <div className="mt-8 space-y-4">
-            {data.activeVsInactive.map((item, idx) => (
+            {(data.activeVsInactive || []).map((item, idx) => (
               <div key={idx} className="flex justify-between items-center">
                 <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full" style={{backgroundColor: item.color}}></div>
-                  <span className="text-sm font-bold text-slate-500">{item.name}</span>
+                  <div className="w-3 h-3 rounded-full" style={{backgroundColor: item?.color}}></div>
+                  <span className="text-sm font-bold text-slate-500">{item?.name}</span>
                 </div>
-                <span className="text-sm font-black text-slate-900 dark:text-white">{item.value} Users</span>
+                <span className="text-sm font-black text-slate-900 dark:text-white">{item?.value} Users</span>
               </div>
             ))}
           </div>
@@ -128,16 +136,16 @@ function Analytics() {
 
         <div className="lg:col-span-3 bg-white dark:bg-slate-800 p-8 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700">
           <h3 className="text-xl font-black text-slate-900 dark:text-white mb-8">Event Participation</h3>
-          <div className="h-80 w-full">
+          <div style={{ width: "100%", height: "350px" }}>
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={data.eventParticipation} layout="vertical">
+              <BarChart data={data.eventParticipation || []} layout="vertical">
                 <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#e2e8f0" />
                 <XAxis type="number" axisLine={false} tickLine={false} tick={{fontSize: 12, fontWeight: 700, fill: '#64748b'}} />
                 <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{fontSize: 12, fontWeight: 700, fill: '#64748b'}} width={100} />
                 <Tooltip 
                   contentStyle={{borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)'}}
                 />
-                <Bar dataKey="participants" fill="var(--color-primary)" radius={[0, 6, 6, 0]} barSize={30} />
+                <Bar dataKey="participants" fill="#285A48" radius={[0, 6, 6, 0]} barSize={30} />
               </BarChart>
             </ResponsiveContainer>
           </div>

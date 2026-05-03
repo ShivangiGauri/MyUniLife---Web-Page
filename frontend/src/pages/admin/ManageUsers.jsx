@@ -1,30 +1,33 @@
 import { useState, useEffect } from "react";
-import { Search, UserPlus, MoreVertical, Edit2, Trash2, ShieldCheck, User } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Search, UserPlus, Trash2, ShieldCheck, Edit2 } from "lucide-react";
 import api from "../../api/api";
 import { useAuth } from "../../context/AuthContext";
 
 function ManageUsers() {
+  const navigate = useNavigate();
   const [users, setUsers] = useState([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const { user: currentUser } = useAuth();
 
   useEffect(() => {
+    // Role Protection
+    const role = localStorage.getItem("role");
+    if (role !== "admin") {
+      navigate("/login");
+      return;
+    }
     fetchUsers();
-  }, []);
+  }, [navigate]);
 
   const fetchUsers = async () => {
     try {
       const response = await api.get("/admin/users");
-      setUsers(response.data);
+      setUsers(response.data || []);
     } catch (error) {
       console.error("Error fetching users:", error);
-      // Fallback/Mock
-      setUsers([
-        { id: 1, name: "John Doe", email: "john@test.edu", role: "student", status: "active" },
-        { id: 2, name: "Coding Club", email: "coding@test.edu", role: "club", status: "active" },
-        { id: 3, name: "Jane Smith", email: "jane@test.edu", role: "student", status: "inactive" },
-      ]);
+      setUsers([]);
     } finally {
       setLoading(false);
     }
@@ -50,9 +53,9 @@ function ManageUsers() {
     }
   };
 
-  const filteredUsers = users.filter(u => 
-    u.name.toLowerCase().includes(search.toLowerCase()) || 
-    u.email.toLowerCase().includes(search.toLowerCase())
+  const filteredUsers = (users || []).filter(u => 
+    (u?.name || "").toLowerCase().includes(search.toLowerCase()) || 
+    (u?.email || "").toLowerCase().includes(search.toLowerCase())
   );
 
   return (
@@ -60,9 +63,9 @@ function ManageUsers() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-black text-slate-900 dark:text-white">User Management</h1>
-          <p className="text-slate-500 font-bold">Managing members of {currentUser?.universityName}</p>
+          <p className="text-slate-500 font-bold">Managing members of {currentUser?.universityName || "University"}</p>
         </div>
-        <button className="flex items-center gap-2 px-6 py-3 bg-[var(--color-primary)] text-white rounded-2xl font-bold shadow-lg shadow-[var(--color-primary)]/20 hover:scale-105 transition-all">
+        <button className="flex items-center gap-2 px-6 py-3 bg-[#285A48] text-white rounded-2xl font-bold shadow-lg shadow-[#285A48]/20 hover:scale-105 transition-all">
           <UserPlus size={20} />
           <span>Add User</span>
         </button>
@@ -77,15 +80,8 @@ function ManageUsers() {
               placeholder="Search by name or email..." 
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-slate-900 border-none rounded-2xl text-sm font-bold focus:ring-2 focus:ring-[var(--color-primary)] transition"
+              className="w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-slate-900 border-none rounded-2xl text-sm font-bold focus:ring-2 focus:ring-[#285A48] transition"
             />
-          </div>
-          <div className="flex items-center gap-2 w-full sm:w-auto">
-            <select className="flex-1 sm:w-40 py-3 px-4 bg-slate-50 dark:bg-slate-900 border-none rounded-2xl text-sm font-bold focus:ring-2 focus:ring-[var(--color-primary)]">
-              <option>All Roles</option>
-              <option>Students</option>
-              <option>Clubs</option>
-            </select>
           </div>
         </div>
 
@@ -108,35 +104,35 @@ function ManageUsers() {
                 <tr key={user.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-700/30 transition-colors">
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 rounded-xl bg-[var(--bg-primary)] flex items-center justify-center text-[var(--color-primary)] font-black">
-                        {user.name[0].toUpperCase()}
+                      <div className="w-10 h-10 rounded-xl bg-[#B0E4CC] flex items-center justify-center text-[#285A48] font-black">
+                        {(user?.name || "?")[0].toUpperCase()}
                       </div>
                       <div>
-                        <p className="font-bold text-slate-900 dark:text-white">{user.name}</p>
-                        <p className="text-xs text-slate-500">{user.email}</p>
+                        <p className="font-bold text-slate-900 dark:text-white">{user?.name}</p>
+                        <p className="text-xs text-slate-500">{user?.email}</p>
                       </div>
                     </div>
                   </td>
                   <td className="px-6 py-4">
                     <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${
-                      user.role === 'club' 
+                      user?.role === 'club' 
                         ? 'bg-purple-100 text-purple-600' 
                         : 'bg-blue-100 text-blue-600'
                     }`}>
-                      {user.role}
+                      {user?.role}
                     </span>
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-2">
-                      <div className={`w-2 h-2 rounded-full ${user.status === 'active' ? 'bg-emerald-500' : 'bg-slate-300'}`}></div>
-                      <span className="text-sm font-bold text-slate-600 dark:text-slate-400 capitalize">{user.status}</span>
+                      <div className={`w-2 h-2 rounded-full ${user?.status === 'active' ? 'bg-emerald-500' : 'bg-slate-300'}`}></div>
+                      <span className="text-sm font-bold text-slate-600 dark:text-slate-400 capitalize">{user?.status || "unknown"}</span>
                     </div>
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center justify-end gap-2">
                       <button 
                         onClick={() => toggleRole(user.id, user.role)}
-                        title={`Promote to ${user.role === 'student' ? 'Club' : 'Student'}`}
+                        title={`Promote to ${user?.role === 'student' ? 'Club' : 'Student'}`}
                         className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition"
                       >
                         <ShieldCheck size={18} />
@@ -156,14 +152,6 @@ function ManageUsers() {
               ))}
             </tbody>
           </table>
-        </div>
-        
-        <div className="p-6 bg-slate-50/50 dark:bg-slate-900/50 border-t border-slate-100 dark:border-slate-700 flex justify-between items-center">
-          <p className="text-sm text-slate-500 font-bold">Showing {filteredUsers.length} of {users.length} users</p>
-          <div className="flex gap-2">
-            <button className="px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold disabled:opacity-50">Previous</button>
-            <button className="px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold">Next</button>
-          </div>
         </div>
       </div>
     </div>

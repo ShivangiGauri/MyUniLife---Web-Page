@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Users, Calendar, AlertCircle, TrendingUp, ArrowUpRight, ArrowDownRight } from "lucide-react";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import api from "../../api/api";
 
 const StatCard = ({ title, value, icon: Icon, trend, trendValue, color }) => (
@@ -17,11 +18,12 @@ const StatCard = ({ title, value, icon: Icon, trend, trendValue, color }) => (
       )}
     </div>
     <h3 className="text-slate-500 dark:text-slate-400 text-sm font-bold uppercase tracking-wider">{title}</h3>
-    <p className="text-3xl font-black text-slate-900 dark:text-white mt-1">{value}</p>
+    <p className="text-3xl font-black text-slate-900 dark:text-white mt-1">{value || 0}</p>
   </div>
 );
 
 function AdminDashboard() {
+  const navigate = useNavigate();
   const [stats, setStats] = useState({
     users: 0,
     events: 0,
@@ -33,19 +35,24 @@ function AdminDashboard() {
   const [topClubs, setTopClubs] = useState([]);
 
   useEffect(() => {
+    // Role Protection
+    const role = localStorage.getItem("role");
+    if (role !== "admin") {
+      navigate("/login");
+      return;
+    }
     fetchDashboardData();
-  }, []);
+  }, [navigate]);
 
   const fetchDashboardData = async () => {
     try {
       const response = await api.get("/admin/dashboard-stats");
-      setStats(response.data.stats);
-      setChartData(response.data.chartData);
-      setTopClubs(response.data.topClubs);
+      setStats(response.data.stats || {});
+      setChartData(response.data.chartData || []);
+      setTopClubs(response.data.topClubs || []);
     } catch (error) {
       console.error("Error fetching dashboard data:", error);
-      // Mock data for UI development
-      setStats({ users: 1240, events: 45, issues: 12, activeUsers: 850 });
+      // Fallback/Mock data
       setChartData([
         { name: 'Mon', users: 400, events: 24 },
         { name: 'Tue', users: 300, events: 13 },
@@ -54,11 +61,6 @@ function AdminDashboard() {
         { name: 'Fri', users: 189, events: 48 },
         { name: 'Sat', users: 239, events: 38 },
         { name: 'Sun', users: 349, events: 43 },
-      ]);
-      setTopClubs([
-        { name: "Tech Innovators", events: 12, participation: 450 },
-        { name: "Eco Warriors", events: 8, participation: 320 },
-        { name: "Cultural Hub", events: 15, participation: 280 }
       ]);
     }
   };
@@ -81,9 +83,10 @@ function AdminDashboard() {
               <option>Last Month</option>
             </select>
           </div>
-          <div className="h-80 w-full">
+          {/* Chart Container with fixed dimensions */}
+          <div style={{ width: "100%", height: "300px" }}>
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={chartData}>
+              <BarChart data={chartData || []}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
                 <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fontSize: 12, fontWeight: 700, fill: '#64748b'}} dy={10} />
                 <YAxis axisLine={false} tickLine={false} tick={{fontSize: 12, fontWeight: 700, fill: '#64748b'}} />
@@ -91,7 +94,7 @@ function AdminDashboard() {
                   contentStyle={{borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)'}}
                   cursor={{fill: '#f1f5f9'}}
                 />
-                <Bar dataKey="users" fill="var(--color-primary)" radius={[6, 6, 0, 0]} barSize={30} />
+                <Bar dataKey="users" fill="#285A48" radius={[6, 6, 0, 0]} barSize={30} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -100,25 +103,28 @@ function AdminDashboard() {
         <div className="bg-white dark:bg-slate-800 p-8 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700">
           <h3 className="text-xl font-black text-slate-900 dark:text-white mb-8">Top Performing Clubs</h3>
           <div className="space-y-6">
-            {topClubs.map((club, idx) => (
+            {(topClubs || []).map((club, idx) => (
               <div key={idx} className="flex items-center justify-between group cursor-pointer">
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-700 flex items-center justify-center font-black text-slate-500 group-hover:bg-[var(--bg-primary)] group-hover:text-[var(--color-primary)] transition-colors">
+                  <div className="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-700 flex items-center justify-center font-black text-slate-500 group-hover:bg-[#B0E4CC] group-hover:text-[#285A48] transition-colors">
                     {idx + 1}
                   </div>
                   <div>
-                    <p className="font-bold text-slate-900 dark:text-white group-hover:text-[var(--color-primary)] transition-colors">{club.name}</p>
-                    <p className="text-xs text-slate-500">{club.events} Events this month</p>
+                    <p className="font-bold text-slate-900 dark:text-white group-hover:text-[#285A48] transition-colors">{club?.name}</p>
+                    <p className="text-xs text-slate-500">{club?.events} Events this month</p>
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="font-black text-slate-900 dark:text-white">{club.participation}</p>
+                  <p className="font-black text-slate-900 dark:text-white">{club?.participation}</p>
                   <p className="text-[10px] uppercase font-bold text-slate-400">Participants</p>
                 </div>
               </div>
             ))}
+            {(!topClubs || topClubs.length === 0) && (
+              <p className="text-center py-10 font-bold text-slate-400">No performance data available.</p>
+            )}
           </div>
-          <button className="w-full mt-10 p-4 rounded-2xl bg-slate-50 dark:bg-slate-900 text-slate-500 font-bold hover:bg-[var(--bg-primary)] hover:text-[var(--color-primary)] transition-all">
+          <button className="w-full mt-10 p-4 rounded-2xl bg-slate-50 dark:bg-slate-900 text-slate-500 font-bold hover:bg-[#B0E4CC] hover:text-[#285A48] transition-all">
             View All Performance Metrics
           </button>
         </div>

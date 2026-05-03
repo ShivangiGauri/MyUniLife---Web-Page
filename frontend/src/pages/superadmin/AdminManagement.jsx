@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Trash2, UserPlus, Building, ShieldCheck, Lock } from "lucide-react";
 import { getAllAdmins, createAdmin, deleteAdmin, getAllUniversities } from "../../services/superadminService";
 
 function AdminManagement() {
+  const navigate = useNavigate();
   const [admins, setAdmins] = useState([]);
   const [universities, setUniversities] = useState([]);
   const [form, setForm] = useState({ 
@@ -14,19 +16,27 @@ function AdminManagement() {
   });
   const [loading, setLoading] = useState(false);
 
+  useEffect(() => {
+    // Role Protection
+    const role = localStorage.getItem("role");
+    if (role !== "superadmin") {
+      navigate("/login");
+      return;
+    }
+    fetchData();
+  }, [navigate]);
+
   const fetchData = async () => {
     try {
       const adminData = await getAllAdmins();
-      if (adminData.success) setAdmins(adminData.admins);
+      if (adminData.success) setAdmins(adminData.admins || []);
 
       const uniData = await getAllUniversities();
-      if (uniData.success) setUniversities(uniData.universities);
+      if (uniData.success) setUniversities(uniData.universities || []);
     } catch (err) {
       console.error(err.message);
     }
   };
-
-  useEffect(() => { fetchData(); }, []);
 
   const handleCreate = async (e) => {
     e.preventDefault();
@@ -97,8 +107,8 @@ function AdminManagement() {
                 required
               >
                 <option value="">Select University...</option>
-                {universities.map(uni => (
-                  <option key={uni.id} value={uni.id}>{uni.name}</option>
+                {(universities || []).map(uni => (
+                  <option key={uni?.id} value={uni?.id}>{uni?.name}</option>
                 ))}
               </select>
             </div>
@@ -140,18 +150,18 @@ function AdminManagement() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
-              {admins.map(admin => (
-                <tr key={admin.id} className="hover:bg-slate-50/30 dark:hover:bg-slate-700/30 transition duration-200 group">
+              {(admins || []).map(admin => (
+                <tr key={admin?.id} className="hover:bg-slate-50/30 dark:hover:bg-slate-700/30 transition duration-200 group">
                   <td className="p-6">
                     <div className="flex items-center gap-4">
                       <div className="w-10 h-10 rounded-xl bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center font-black text-indigo-600">
-                        {admin.fullName[0].toUpperCase()}
+                        {(admin?.fullName || "?")[0].toUpperCase()}
                       </div>
-                      <span className="font-bold text-slate-800 dark:text-white">{admin.fullName}</span>
+                      <span className="font-bold text-slate-800 dark:text-white">{admin?.fullName}</span>
                     </div>
                   </td>
-                  <td className="p-6 font-black text-indigo-600 dark:text-indigo-400 text-xs uppercase tracking-wider">{admin.universityName || "N/A"}</td>
-                  <td className="p-6 font-bold text-slate-500 dark:text-slate-400 text-sm">{admin.email}</td>
+                  <td className="p-6 font-black text-indigo-600 dark:text-indigo-400 text-xs uppercase tracking-wider">{admin?.universityName || "N/A"}</td>
+                  <td className="p-6 font-bold text-slate-500 dark:text-slate-400 text-sm">{admin?.email}</td>
                   <td className="p-6 text-right">
                     <button onClick={() => handleDelete(admin.id)} className="p-3 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded-xl transition-all">
                       <Trash2 size={20} />
@@ -159,6 +169,9 @@ function AdminManagement() {
                   </td>
                 </tr>
               ))}
+              {(!admins || admins.length === 0) && (
+                <tr><td colSpan="4" className="p-10 text-center font-bold text-slate-400">No administrators found.</td></tr>
+              )}
             </tbody>
           </table>
         </div>

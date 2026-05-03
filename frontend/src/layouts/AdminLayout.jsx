@@ -61,7 +61,7 @@ function AdminLayout() {
             <div className="flex items-center gap-3 pl-4 border-l border-slate-200 dark:border-slate-700">
               <div className="hidden md:flex flex-col items-end">
                 <span className="text-sm font-bold text-[var(--text-primary)] dark:text-white">{user?.name}</span>
-                <span className="text-[10px] font-bold text-[var(--text-muted)]">ADMIN</span>
+                <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase">{user?.role || 'User'}</span>
               </div>
               <div className="w-10 h-10 rounded-xl bg-[var(--color-primary)] flex items-center justify-center text-white font-black shadow-lg shadow-[var(--color-primary)]/20">
                 {user?.name?.[0]?.toUpperCase()}
