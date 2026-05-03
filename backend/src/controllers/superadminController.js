@@ -10,17 +10,25 @@ export const universities = [
 // -- ADMIN MANAGEMENT --
 export const createAdmin = async (req, res) => {
   try {
-    let { fullName, email, password, universityId } = req.body;
+    let { fullName, email, password, universityId, passphrase } = req.body;
+
+    // Required fields validation
     if (!fullName || !email || !password || !universityId) {
-      return res.status(400).json({ success: false, message: "All fields including University are required" });
+      return res.status(400).json({ success: false, message: "Name, email, password, and University selection are required." });
+    }
+
+    // Optional Passphrase Validation (if provided)
+    const envPassphrase = process.env.ADMIN_PASSPHRASE || "supersecretkey";
+    if (passphrase && passphrase !== envPassphrase) {
+      return res.status(403).json({ success: false, message: "Invalid security passphrase." });
     }
 
     const university = universities.find(u => u.id === universityId);
-    if (!university) return res.status(404).json({ success: false, message: "University not found" });
+    if (!university) return res.status(404).json({ success: false, message: "Assigned university not found." });
 
     email = email.trim().toLowerCase();
     const existingUser = users.find(u => u.email === email);
-    if (existingUser) return res.status(400).json({ success: false, message: "User already exists" });
+    if (existingUser) return res.status(400).json({ success: false, message: "User already exists with this email." });
 
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
@@ -32,7 +40,8 @@ export const createAdmin = async (req, res) => {
       password: hashedPassword,
       role: "admin",
       universityId,
-      universityName: university.name
+      universityName: university.name,
+      createdAt: new Date().toISOString()
     };
 
     users.push(admin);
