@@ -1,12 +1,11 @@
 import axios from "axios";
 
-export const API_BASE_URL = import.meta.env.VITE_API_URL 
-  ? `${import.meta.env.VITE_API_URL}/api/v1/` 
-  : "https://myunilife-web-page.onrender.com/api/v1/";
+// Standardize API_BASE_URL to NOT have a trailing slash
+export const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || "https://myunilife-web-page.onrender.com/api/v1").replace(/\/$/, "");
 
-console.log("🚀 Calling API at:", API_BASE_URL);
+console.log("📡 API Base URL:", API_BASE_URL);
 
-// Create an axios instance
+// Create a clean axios instance
 const api = axios.create({
   baseURL: API_BASE_URL,
   withCredentials: true,
@@ -15,37 +14,34 @@ const api = axios.create({
   },
 });
 
-// Add a request interceptor to include the token in headers
+// Request interceptor for token injection
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+    
+    // Debug logging for final URL
+    // Note: Axios baseURL + relative URL with leading slash can be tricky.
+    // We ensure endpoints called with / work correctly with our baseURL.
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
-// Add a response interceptor for better error handling
+// Response interceptor for error handling
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    // Extract a meaningful error message
-    const message = error.response?.data?.message || "Something went wrong. Please try again.";
+    const message = error.response?.data?.message || error.message || "Something went wrong";
+    error.message = message;
     
-    // Handle specific status codes
     if (error.response?.status === 401) {
-      console.warn("Unauthorized! Logging out...");
       localStorage.removeItem("token");
       localStorage.removeItem("role");
-      // Optional: window.location.href = "/login";
     }
-
-    // Attach the clean message to the error object so services can catch it
-    error.message = message;
+    
     return Promise.reject(error);
   }
 );
