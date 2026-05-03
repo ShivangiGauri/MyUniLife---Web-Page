@@ -1,10 +1,10 @@
 import axios from "axios";
 
-export const API_BASE_URL = `${import.meta.env.VITE_API_URL}/api/v1`;
+export const API_BASE_URL = import.meta.env.VITE_API_URL 
+  ? `${import.meta.env.VITE_API_URL}/api/v1` 
+  : "https://myunilife-web-page.onrender.com/api/v1";
 
-if (import.meta.env.DEV) {
-  console.log("🚀 API Base URL:", API_BASE_URL);
-}
+console.log("API BASE URL:", API_BASE_URL);
 
 // Create an axios instance
 const api = axios.create({

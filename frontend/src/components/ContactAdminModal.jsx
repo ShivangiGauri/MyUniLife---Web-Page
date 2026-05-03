@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
-import api from "../api/api";
+import api, { API_BASE_URL } from "../api/api";
 
 export default function ContactAdminModal({ onClose }) {
   const [subject, setSubject] = useState("");
@@ -20,7 +20,7 @@ export default function ContactAdminModal({ onClose }) {
     setLoading(true);
 
     try {
-      const response = await api.post("contact/send", {
+      const response = await api.post(`${API_BASE_URL}/contact/send`, {
         name: userName,
         email: userEmail,
         role: userRole,

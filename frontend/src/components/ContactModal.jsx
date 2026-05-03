@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Input } from "./ui/Input";
 import { Button } from "./ui/Button";
 import { X } from "lucide-react";
-import api from "../api/api";
+import api, { API_BASE_URL } from "../api/api";
 
 export default function ContactModal({ isOpen, onClose, receiverEmail }) {
   const [toEmail, setToEmail] = useState(receiverEmail || "");
@@ -31,7 +31,7 @@ export default function ContactModal({ isOpen, onClose, receiverEmail }) {
         return;
       }
 
-      const response = await api.post("contact", {
+      const response = await api.post(`${API_BASE_URL}/contact`, {
         email: toEmail,
         subject,
         message

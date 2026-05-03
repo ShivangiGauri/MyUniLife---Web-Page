@@ -1,9 +1,9 @@
-import api from "../api/api";
+import api, { API_BASE_URL } from "../api/api";
 
 // LOGIN
 export const loginUser = async (email, password) => {
   try {
-    const response = await api.post("auth/login", {
+    const response = await api.post(`${API_BASE_URL}/auth/login`, {
       email,
       password,
     });
@@ -16,14 +16,14 @@ export const loginUser = async (email, password) => {
 
     return data;
   } catch (error) {
-    throw error; // Re-throw the error with the clean message from interceptor
+    throw error;
   }
 };
 
 // REGISTER
 export const registerUser = async (userData) => {
   try {
-    const response = await api.post("auth/register", userData);
+    const response = await api.post(`${API_BASE_URL}/auth/register`, userData);
     return response.data;
   } catch (error) {
     throw error;

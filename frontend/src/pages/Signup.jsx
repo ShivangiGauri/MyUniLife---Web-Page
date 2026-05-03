@@ -4,7 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import { Card } from "../components/ui/Card";
 import { Input } from "../components/ui/Input";
 import { Button } from "../components/ui/Button";
-import api from "../api/api";
+import api, { API_BASE_URL } from "../api/api";
 
 function Signup() {
   const [role, setRole] = useState("");
@@ -25,7 +25,7 @@ function Signup() {
     setLoading(true);
 
     try {
-      const res = await api.post("auth/register", { ...form, role });
+      const res = await api.post(`${API_BASE_URL}/auth/register`, { ...form, role });
       const data = res.data;
       
       if (data.token) {

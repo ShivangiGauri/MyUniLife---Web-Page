@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect } from "react";
-import api from "../api/api";
+import api, { API_BASE_URL } from "../api/api";
 
 const AuthContext = createContext();
 
@@ -21,7 +21,7 @@ export const AuthProvider = ({ children }) => {
       setLoading(false);
 
       try {
-        const res = await api.get("auth/me");
+        const res = await api.get(`${API_BASE_URL}/auth/me`);
         if (res.data && res.data.user) {
           setUser(res.data.user);
         }
