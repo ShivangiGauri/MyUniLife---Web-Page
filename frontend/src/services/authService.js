@@ -3,7 +3,8 @@ import api from "../api/api";
 // LOGIN
 export const loginUser = async (email, password) => {
   try {
-    const response = await api.post("/auth/login", {
+    console.log("🔐 Attempting Login at: auth/login");
+    const response = await api.post("auth/login", {
       email,
       password,
     });
@@ -22,7 +23,7 @@ export const loginUser = async (email, password) => {
 // REGISTER
 export const registerUser = async (userData) => {
   try {
-    const response = await api.post("/auth/register", userData);
+    const response = await api.post("auth/register", userData);
     return response.data;
   } catch (error) {
     throw error;

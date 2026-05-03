@@ -32,6 +32,7 @@ function Login() {
       else navigate("/guest/dashboard");
 
     } catch (err) {
+      console.error("❌ Login Error:", err.response?.data || err.message);
       setErrorMsg(err.message || "Server error. Please try again later.");
     } finally {
       setLoading(false);
