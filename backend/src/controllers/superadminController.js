@@ -1,11 +1,5 @@
 import bcrypt from "bcryptjs";
-import { users } from "./authController.js";
-
-// IN-MEMORY UNIVERSITIES
-export const universities = [
-  { id: "1", name: "MIT", domain: "mit.edu", location: "USA" },
-  { id: "2", name: "Stanford", domain: "stanford.edu", location: "USA" }
-];
+import { users, universities } from "../db/mockDb.js";
 
 // -- ADMIN MANAGEMENT --
 export const createAdmin = async (req, res) => {
@@ -92,4 +86,3 @@ export const deleteUniversity = async (req, res) => {
   if (index !== -1) universities.splice(index, 1);
   res.json({ success: true, message: "University deleted" });
 };
-

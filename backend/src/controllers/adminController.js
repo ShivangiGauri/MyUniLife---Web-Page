@@ -1,9 +1,5 @@
-import { users } from "./authController.js";
-
-// IN-MEMORY DATA
-export const events = [];
-export const issues = [];
-export const logs = [];
+import bcrypt from "bcryptjs";
+import { users, events, issues, logs } from "../db/mockDb.js";
 
 // UTILS
 export const addLog = (action, performedBy, universityId) => {
@@ -17,6 +13,36 @@ export const addLog = (action, performedBy, universityId) => {
 };
 
 // -- USERS --
+export const createAdminUser = async (req, res) => {
+  const universityId = req.user.universityId;
+  const { fullName, email, role, password } = req.body;
+
+  if (!fullName || !email || !role) {
+    return res.status(400).json({ message: "Missing required fields" });
+  }
+
+  const existing = users.find(u => u.email === email);
+  if (existing) return res.status(400).json({ message: "User already exists" });
+
+  const salt = await bcrypt.genSalt(10);
+  const hashedPassword = await bcrypt.hash(password || "password123", salt);
+
+  const newUser = {
+    id: Date.now().toString(),
+    fullName,
+    email,
+    role,
+    password: hashedPassword,
+    universityId,
+    universityName: req.user.universityName,
+    status: "active"
+  };
+
+  users.push(newUser);
+  addLog(`New ${role} created: ${fullName}`, req.user.email, universityId);
+  res.status(201).json(newUser);
+};
+
 export const getUsers = async (req, res) => {
   const universityId = req.user.universityId;
   const filtered = users.filter(u => u.universityId === universityId && (u.role === "student" || u.role === "club"));
@@ -68,6 +94,8 @@ export const getAdminEvents = async (req, res) => {
 
 export const createAdminEvent = async (req, res) => {
   const universityId = req.user.universityId;
+  if (!universityId) return res.status(403).json({ message: "University scope required" });
+
   const event = {
     id: Date.now().toString(),
     ...req.body,

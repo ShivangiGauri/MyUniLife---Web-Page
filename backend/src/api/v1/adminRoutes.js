@@ -10,6 +10,7 @@ router.use(verifyToken, verifyAdmin, verifyUniversityScope);
 
 // Users Management
 router.get("/users", adminController.getUsers);
+router.post("/users", adminController.createAdminUser);
 router.patch("/users/:id", adminController.updateUser);
 router.patch("/users/:id/role", adminController.updateUser); // Alias for compatibility
 router.delete("/users/:id", adminController.deleteUser);

@@ -15,7 +15,8 @@ export const verifyToken = (req, res, next) => {
       id: decoded.id,
       role: decoded.role,
       email: decoded.email,
-      universityId: decoded.universityId
+      universityId: decoded.universityId,
+      universityName: decoded.universityName
     };
     next();
   } catch (error) {

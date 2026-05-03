@@ -12,7 +12,8 @@ function Signup() {
     fullName: "",
     universityEmail: "",
     personalEmail: "",
-    password: ""
+    password: "",
+    enrollmentYear: new Date().getFullYear().toString()
   });
   const [errorMsg, setErrorMsg] = useState("");
   const [loading, setLoading] = useState(false);
@@ -111,6 +112,17 @@ function Signup() {
                 placeholder="john@university.edu"
                 value={form.universityEmail}
                 onChange={(e) => setForm({ ...form, universityEmail: e.target.value })}
+                required
+              />
+            )}
+
+            {(role === "student" || role === "club") && (
+              <Input
+                label="Enrollment Year"
+                type="number"
+                placeholder="2024"
+                value={form.enrollmentYear}
+                onChange={(e) => setForm({ ...form, enrollmentYear: e.target.value })}
                 required
               />
             )}

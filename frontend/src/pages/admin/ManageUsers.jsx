@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, UserPlus, Trash2, ShieldCheck, Edit2 } from "lucide-react";
+import { Search, UserPlus, Trash2, ShieldCheck, Edit2, X } from "lucide-react";
 import api from "../../api/api";
 import { useAuth } from "../../context/AuthContext";
 
@@ -9,10 +9,11 @@ function ManageUsers() {
   const [users, setUsers] = useState([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [newUser, setNewUser] = useState({ fullName: "", email: "", role: "student", password: "password123" });
   const { user: currentUser } = useAuth();
 
   useEffect(() => {
-    // Role Protection
     const role = localStorage.getItem("role");
     if (role !== "admin") {
       navigate("/login");
@@ -30,6 +31,27 @@ function ManageUsers() {
       setUsers([]);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleAddUser = async (e) => {
+    e.preventDefault();
+    try {
+      // In a real app, this might call a specific admin endpoint to create a user
+      // For now, we'll use a mock register-like flow or an admin/users POST if available
+      // Let's assume we can POST to /admin/users (I should add this to backend)
+      const response = await api.post("/admin/users", {
+        ...newUser,
+        universityId: currentUser.universityId // Ensure university isolation
+      });
+      if (response.status === 201 || response.status === 200) {
+        alert("User added successfully!");
+        setIsModalOpen(false);
+        setNewUser({ fullName: "", email: "", role: "student", password: "password123" });
+        fetchUsers();
+      }
+    } catch (error) {
+      alert(error.response?.data?.message || "Failed to add user");
     }
   };
 
@@ -54,7 +76,7 @@ function ManageUsers() {
   };
 
   const filteredUsers = (users || []).filter(u => 
-    (u?.name || "").toLowerCase().includes(search.toLowerCase()) || 
+    (u?.fullName || u?.name || "").toLowerCase().includes(search.toLowerCase()) || 
     (u?.email || "").toLowerCase().includes(search.toLowerCase())
   );
 
@@ -65,7 +87,10 @@ function ManageUsers() {
           <h1 className="text-2xl font-black text-slate-900 dark:text-white">User Management</h1>
           <p className="text-slate-500 font-bold">Managing members of {currentUser?.universityName || "University"}</p>
         </div>
-        <button className="flex items-center gap-2 px-6 py-3 bg-[#285A48] text-white rounded-2xl font-bold shadow-lg shadow-[#285A48]/20 hover:scale-105 transition-all">
+        <button 
+          onClick={() => setIsModalOpen(true)}
+          className="flex items-center gap-2 px-6 py-3 bg-[#285A48] text-white rounded-2xl font-bold shadow-lg shadow-[#285A48]/20 hover:scale-105 transition-all"
+        >
           <UserPlus size={20} />
           <span>Add User</span>
         </button>
@@ -91,7 +116,6 @@ function ManageUsers() {
               <tr className="bg-slate-50/50 dark:bg-slate-900/50">
                 <th className="px-6 py-4 text-xs font-black text-slate-500 uppercase tracking-widest">User</th>
                 <th className="px-6 py-4 text-xs font-black text-slate-500 uppercase tracking-widest">Role</th>
-                <th className="px-6 py-4 text-xs font-black text-slate-500 uppercase tracking-widest">Status</th>
                 <th className="px-6 py-4 text-xs font-black text-slate-500 uppercase tracking-widest text-right">Actions</th>
               </tr>
             </thead>
@@ -105,10 +129,10 @@ function ManageUsers() {
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-4">
                       <div className="w-10 h-10 rounded-xl bg-[#B0E4CC] flex items-center justify-center text-[#285A48] font-black">
-                        {(user?.name || "?")[0].toUpperCase()}
+                        {(user?.fullName || user?.name || "?")[0].toUpperCase()}
                       </div>
                       <div>
-                        <p className="font-bold text-slate-900 dark:text-white">{user?.name}</p>
+                        <p className="font-bold text-slate-900 dark:text-white">{user?.fullName || user?.name}</p>
                         <p className="text-xs text-slate-500">{user?.email}</p>
                       </div>
                     </div>
@@ -121,12 +145,6 @@ function ManageUsers() {
                     }`}>
                       {user?.role}
                     </span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-2">
-                      <div className={`w-2 h-2 rounded-full ${user?.status === 'active' ? 'bg-emerald-500' : 'bg-slate-300'}`}></div>
-                      <span className="text-sm font-bold text-slate-600 dark:text-slate-400 capitalize">{user?.status || "unknown"}</span>
-                    </div>
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center justify-end gap-2">
@@ -154,6 +172,72 @@ function ManageUsers() {
           </table>
         </div>
       </div>
+
+      {/* Add User Modal */}
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-slate-800 w-full max-w-md rounded-[2.5rem] p-8 shadow-2xl relative animate-in fade-in zoom-in duration-300">
+            <button 
+              onClick={() => setIsModalOpen(false)}
+              className="absolute right-6 top-6 p-2 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl transition"
+            >
+              <X size={20} />
+            </button>
+            
+            <h2 className="text-2xl font-black text-slate-900 dark:text-white mb-6 flex items-center gap-3">
+              <div className="p-3 bg-[#B0E4CC] text-[#285A48] rounded-2xl">
+                <UserPlus size={24} />
+              </div>
+              Provision User
+            </h2>
+
+            <form onSubmit={handleAddUser} className="space-y-4">
+              <div className="space-y-2">
+                <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Full Name</label>
+                <input 
+                  type="text" 
+                  required
+                  placeholder="John Doe"
+                  className="w-full p-4 bg-slate-50 dark:bg-slate-900 rounded-2xl font-bold focus:ring-4 focus:ring-[#B0E4CC] transition-all outline-none"
+                  value={newUser.fullName}
+                  onChange={e => setNewUser({...newUser, fullName: e.target.value})}
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">University Email</label>
+                <input 
+                  type="email" 
+                  required
+                  placeholder="john@uni.edu"
+                  className="w-full p-4 bg-slate-50 dark:bg-slate-900 rounded-2xl font-bold focus:ring-4 focus:ring-[#B0E4CC] transition-all outline-none"
+                  value={newUser.email}
+                  onChange={e => setNewUser({...newUser, email: e.target.value})}
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Role</label>
+                <select 
+                  className="w-full p-4 bg-slate-50 dark:bg-slate-900 rounded-2xl font-bold focus:ring-4 focus:ring-[#B0E4CC] transition-all outline-none"
+                  value={newUser.role}
+                  onChange={e => setNewUser({...newUser, role: e.target.value})}
+                >
+                  <option value="student">Student</option>
+                  <option value="club">Club Member</option>
+                </select>
+              </div>
+              
+              <div className="pt-4">
+                <button 
+                  type="submit"
+                  className="w-full py-4 bg-[#285A48] text-white rounded-2xl font-black text-lg shadow-xl shadow-[#285A48]/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
+                >
+                  Confirm Provisioning
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
