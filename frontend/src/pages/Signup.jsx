@@ -25,7 +25,7 @@ function Signup() {
     setLoading(true);
 
     try {
-      const res = await api.post("/auth/register", { ...form, role });
+      const res = await api.post("auth/register", { ...form, role });
       const data = res.data;
       
       if (data.token) {

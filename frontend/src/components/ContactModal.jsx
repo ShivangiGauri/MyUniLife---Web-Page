@@ -31,7 +31,7 @@ export default function ContactModal({ isOpen, onClose, receiverEmail }) {
         return;
       }
 
-      const response = await api.post("/contact", {
+      const response = await api.post("contact", {
         email: toEmail,
         subject,
         message

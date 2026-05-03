@@ -21,7 +21,7 @@ export const AuthProvider = ({ children }) => {
       setLoading(false);
 
       try {
-        const res = await api.get("/auth/me");
+        const res = await api.get("auth/me");
         if (res.data && res.data.user) {
           setUser(res.data.user);
         }

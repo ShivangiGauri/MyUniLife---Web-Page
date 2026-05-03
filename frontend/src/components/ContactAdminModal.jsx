@@ -20,7 +20,7 @@ export default function ContactAdminModal({ onClose }) {
     setLoading(true);
 
     try {
-      const response = await api.post("/contact/send", {
+      const response = await api.post("contact/send", {
         name: userName,
         email: userEmail,
         role: userRole,
