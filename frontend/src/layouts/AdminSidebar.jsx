@@ -1,5 +1,15 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { 
+  LayoutDashboard, 
+  Users, 
+  Calendar, 
+  BarChart3, 
+  AlertCircle, 
+  History, 
+  LogOut,
+  X
+} from "lucide-react";
 
 function AdminSidebar({ onClose }) {
   const navigate = useNavigate();
@@ -7,64 +17,55 @@ function AdminSidebar({ onClose }) {
 
   const handleLogout = () => {
     logout();
-    navigate("/");
+    navigate("/login");
   };
 
-  const linkClass =
-    "block px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200";
-
-  const activeClass = "bg-indigo-600/10 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400 font-semibold";
-  const inactiveClass = "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700/50";
-
-  const navItem = (path, label) => (
+  const navItem = (to, icon, label) => (
     <NavLink
-      to={path}
+      to={to}
       onClick={onClose}
-      end={path === "/admin"}
       className={({ isActive }) =>
-        `${linkClass} ${isActive ? activeClass : inactiveClass}`
+        `flex items-center gap-3 p-3 rounded-xl transition-all duration-200 font-bold ${
+          isActive
+            ? "bg-[var(--color-primary)] text-white shadow-lg shadow-[var(--color-primary)]/20"
+            : "text-[var(--text-muted)] hover:bg-[var(--bg-surface)] hover:text-[var(--color-primary)]"
+        }`
       }
     >
-      {label}
+      {icon} <span>{label}</span>
     </NavLink>
   );
 
   return (
-    <div className="w-full h-screen flex flex-col justify-between p-5 overflow-y-auto bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 lg:shadow-none">
-      
-      {/* Top Section */}
-      <div>
-        <div className="flex justify-between items-center mb-8 px-2 mt-2">
-          <h2 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Admin Panel</h2>
-          <button onClick={onClose} className="lg:hidden text-gray-600 dark:text-gray-300">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
+    <aside className="w-64 h-full bg-white dark:bg-slate-800 flex flex-col p-6 border-r border-slate-200 dark:border-slate-700 shadow-xl">
+      <div className="flex items-center justify-between mb-10">
+        <div className="flex flex-col">
+          <h1 className="text-2xl font-black text-[var(--color-primary)]">UniAdmin</h1>
+          <p className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider">Management</p>
         </div>
-
-        <nav className="space-y-2">
-          {navItem("/admin", "Dashboard")}
-          {navItem("/admin/users", "Users")}
-          {navItem("/admin/clubs", "Clubs")}
-          {navItem("/admin/events", "Events")}
-          {navItem("/admin/support", "Support")}
-          {navItem("/admin/analytics", "Analytics")}
-          {navItem("/admin/settings", "Settings")}
-        </nav>
-      </div>
-
-      {/* Bottom Section */}
-      <div className="pt-6 border-t border-gray-300 dark:border-gray-600 mt-6">
-        <button
-          onClick={handleLogout}
-          className="w-full text-left px-4 py-3 rounded-xl text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-200"
-        >
-          Logout
+        <button onClick={onClose} className="lg:hidden p-2 text-[var(--text-muted)] hover:bg-[var(--bg-surface)] rounded-lg">
+          <X size={20} />
         </button>
       </div>
 
-    </div>
+      <nav className="flex-1 space-y-2">
+        {navItem("/admin/dashboard", <LayoutDashboard size={20} />, "Dashboard")}
+        {navItem("/admin/users", <Users size={20} />, "Users")}
+        {navItem("/admin/events", <Calendar size={20} />, "Events")}
+        {navItem("/admin/analytics", <BarChart3 size={20} />, "Analytics")}
+        {navItem("/admin/issues", <AlertCircle size={20} />, "Issues")}
+        {navItem("/admin/logs", <History size={20} />, "Logs")}
+      </nav>
+
+      <div className="pt-6 border-t border-slate-200 dark:border-slate-700 mt-auto">
+        <button
+          onClick={handleLogout}
+          className="w-full flex items-center gap-3 p-3 rounded-xl text-red-600 bg-red-50 hover:bg-red-100 transition-all duration-200 font-bold"
+        >
+          <LogOut size={20} /> Force Logout
+        </button>
+      </div>
+    </aside>
   );
 }
 

@@ -1,30 +1,34 @@
 import express from "express";
-import { verifyToken, authorizeRoles } from "../../middleware/authMiddleware.js";
-import { users } from "../../controllers/authController.js";
+import { verifyToken } from "../../middleware/authMiddleware.js";
+import { verifyAdmin, verifyUniversityScope } from "../../middleware/adminMiddleware.js";
+import * as adminController from "../../controllers/adminController.js";
 
 const router = express.Router();
 
-router.patch("/users/:id/role", verifyToken, authorizeRoles("admin", "superadmin"), async (req, res) => {
-  try {
-    const { role } = req.body;
-    const allowedRoles = ["student", "club", "admin", "guest"];
-    
-    if (!allowedRoles.includes(role)) {
-      return res.status(400).json({ success: false, message: "Invalid role specified" });
-    }
+// Middleware applied to all admin routes
+router.use(verifyToken, verifyAdmin, verifyUniversityScope);
 
-    const user = users.find(u => u.id === req.params.id);
-    if (!user) {
-      return res.status(404).json({ success: false, message: "User not found" });
-    }
+// Users Management
+router.get("/users", adminController.getUsers);
+router.patch("/users/:id", adminController.updateUser);
+router.patch("/users/:id/role", adminController.updateUser); // Alias for compatibility
+router.delete("/users/:id", adminController.deleteUser);
 
-    user.role = role;
+// Events Management
+router.get("/events", adminController.getAdminEvents);
+router.post("/events", adminController.createAdminEvent);
+router.patch("/events/:id", adminController.updateAdminEvent);
+router.delete("/events/:id", adminController.deleteAdminEvent);
 
-    res.json({ success: true, message: `User role updated to ${role} (In-Memory)` });
-  } catch (error) {
-    res.status(500).json({ success: false, message: "Server error" });
-  }
-});
+// Issue Tracking
+router.get("/issues", adminController.getAdminIssues);
+router.patch("/issues/:id/resolve", adminController.resolveIssue);
+
+// Logs & Monitoring
+router.get("/logs", adminController.getAdminLogs);
+
+// Analytics
+router.get("/analytics", adminController.getAdminAnalytics);
+router.get("/dashboard-stats", adminController.getAdminAnalytics); // Alias for frontend compatibility
 
 export default router;
-

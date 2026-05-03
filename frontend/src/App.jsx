@@ -33,12 +33,11 @@ import ArchiveEvents from "./pages/student/events/ArchiveEvents";
 
 /* ADMIN */
 import AdminDashboard from "./pages/admin/AdminDashboard";
-import Users from "./pages/admin/Users";
-import Clubs from "./pages/admin/Clubs";
-import Events from "./pages/admin/Events";
-import Support from "./pages/admin/Support";
+import ManageUsers from "./pages/admin/ManageUsers";
+import ManageEvents from "./pages/admin/ManageEvents";
 import Analytics from "./pages/admin/Analytics";
-import AdminSettings from "./pages/admin/AdminSettings";
+import Issues from "./pages/admin/Issues";
+import Logs from "./pages/admin/Logs";
 
 /* CLUB */
 import ClubDashboard from "./pages/club/ClubDashboard";
@@ -92,14 +91,13 @@ function App() {
       {/* ADMIN ROUTES */}
       <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
         <Route path="/admin" element={<AdminLayout />}>
-          <Route index element={<AdminDashboard />} />
+          <Route index element={<Navigate to="dashboard" />} />
           <Route path="dashboard" element={<AdminDashboard />} />
-          <Route path="users" element={<Users />} />
-          <Route path="clubs" element={<Clubs />} />
-          <Route path="events" element={<Events />} />
-          <Route path="support" element={<Support />} />
+          <Route path="users" element={<ManageUsers />} />
+          <Route path="events" element={<ManageEvents />} />
           <Route path="analytics" element={<Analytics />} />
-          <Route path="settings" element={<AdminSettings />} />
+          <Route path="issues" element={<Issues />} />
+          <Route path="logs" element={<Logs />} />
         </Route>
       </Route>
 

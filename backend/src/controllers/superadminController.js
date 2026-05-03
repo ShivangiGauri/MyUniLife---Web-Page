@@ -10,8 +10,13 @@ export const universities = [
 // -- ADMIN MANAGEMENT --
 export const createAdmin = async (req, res) => {
   try {
-    let { fullName, email, password } = req.body;
-    if (!fullName || !email || !password) return res.status(400).json({ success: false, message: "All fields required" });
+    let { fullName, email, password, universityId } = req.body;
+    if (!fullName || !email || !password || !universityId) {
+      return res.status(400).json({ success: false, message: "All fields including University are required" });
+    }
+
+    const university = universities.find(u => u.id === universityId);
+    if (!university) return res.status(404).json({ success: false, message: "University not found" });
 
     email = email.trim().toLowerCase();
     const existingUser = users.find(u => u.email === email);
@@ -25,7 +30,9 @@ export const createAdmin = async (req, res) => {
       fullName,
       email,
       password: hashedPassword,
-      role: "admin"
+      role: "admin",
+      universityId,
+      universityName: university.name
     };
 
     users.push(admin);

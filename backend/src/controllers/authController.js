@@ -1,7 +1,6 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
-// IN-MEMORY DATABASE MOCK
 export const users = [
   {
     id: "admin-123",
@@ -9,8 +8,25 @@ export const users = [
     email: "shivangisinghbly2005@gmail.com",
     password: "$2a$10$7R.v3Z4Y.U8N1R7J.5W9V.k9S1R7J.5W9V.k9S1R7J.5W9V", // mock hashed password
     role: "superadmin"
+  },
+  {
+    id: "admin-456",
+    fullName: "Test Admin",
+    email: "admin@test.edu",
+    password: "password123", // mock
+    role: "admin",
+    universityId: "1",
+    universityName: "MIT"
   }
 ];
+
+const checkAutoGraduation = (user) => {
+  if (user.role === "student" && user.studentYears && user.courseDuration) {
+    if (parseInt(user.studentYears) >= parseInt(user.courseDuration)) {
+      user.role = "guest";
+    }
+  }
+};
 
 // REGISTER
 export const register = async (req, res) => {
@@ -57,7 +73,12 @@ export const register = async (req, res) => {
     users.push(newUser);
 
     const token = jwt.sign(
-      { id: newUser.id, role: newUser.role, email: newUser.email },
+      { 
+        id: newUser.id, 
+        role: newUser.role, 
+        email: newUser.email,
+        universityId: newUser.universityId || null
+      },
       process.env.JWT_SECRET || "supersecretkey",
       { expiresIn: "7d" }
     );
@@ -93,8 +114,15 @@ export const login = async (req, res) => {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
+    checkAutoGraduation(user);
+
     const token = jwt.sign(
-      { id: user.id, role: user.role, email: user.email },
+      { 
+        id: user.id, 
+        role: user.role, 
+        email: user.email,
+        universityId: user.universityId || null
+      },
       process.env.JWT_SECRET || "supersecretkey",
       { expiresIn: "7d" }
     );
