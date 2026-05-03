@@ -4,6 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import { Card } from "../components/ui/Card";
 import { Input } from "../components/ui/Input";
 import { Button } from "../components/ui/Button";
+import api from "../api/api";
 
 function Signup() {
   const [role, setRole] = useState("");
@@ -24,14 +25,10 @@ function Signup() {
     setLoading(true);
 
     try {
-      const res = await fetch("http://localhost:5000/api/v1/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, role })
-      });
-      const data = await res.json();
+      const res = await api.post("/auth/register", { ...form, role });
+      const data = res.data;
       
-      if (data.success && data.token) {
+      if (data.token) {
         localStorage.setItem("token", data.token);
         localStorage.setItem("role", data.role);
         login(data.token, data.user);
@@ -42,11 +39,9 @@ function Signup() {
         else if (targetRole === "admin") navigate("/admin/dashboard");
         else if (targetRole === "superadmin") navigate("/superadmin/dashboard");
         else navigate("/guest/dashboard");
-      } else {
-        setErrorMsg(data.message || "Signup failed");
       }
     } catch (err) {
-      setErrorMsg("Server error");
+      setErrorMsg(err.message || "Signup failed");
     } finally {
       setLoading(false);
     }

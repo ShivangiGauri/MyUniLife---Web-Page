@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect } from "react";
+import api from "../api/api";
 
 const AuthContext = createContext();
 
@@ -20,12 +21,9 @@ export const AuthProvider = ({ children }) => {
       setLoading(false);
 
       try {
-        const res = await fetch("http://localhost:5000/api/v1/auth/me", {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        const data = await res.json();
-        if (data && data.user) {
-          setUser(data.user);
+        const res = await api.get("/auth/me");
+        if (res.data && res.data.user) {
+          setUser(res.data.user);
         }
       } catch (err) {
         logout();

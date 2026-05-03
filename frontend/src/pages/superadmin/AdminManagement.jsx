@@ -1,44 +1,45 @@
 import { useEffect, useState } from "react";
-import { useAuth } from "../../context/AuthContext";
 import { Trash2, UserPlus } from "lucide-react";
+import { getAllAdmins, createAdmin, deleteAdmin } from "../../services/superadminService";
 
 function AdminManagement() {
-  const { token } = useAuth();
   const [admins, setAdmins] = useState([]);
   const [form, setForm] = useState({ fullName: "", email: "", password: "" });
+  const [loading, setLoading] = useState(false);
 
   const fetchAdmins = async () => {
-    const res = await fetch("http://localhost:5000/api/v1/superadmin/admins", {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    const data = await res.json();
-    if (data.success) setAdmins(data.admins);
+    try {
+      const data = await getAllAdmins();
+      if (data.success) setAdmins(data.admins);
+    } catch (err) {
+      console.error(err.message);
+    }
   };
 
   useEffect(() => { fetchAdmins(); }, []);
 
   const handleCreate = async (e) => {
     e.preventDefault();
-    const res = await fetch("http://localhost:5000/api/v1/superadmin/create-admin", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-      body: JSON.stringify(form)
-    });
-    if (res.ok) {
+    try {
+      setLoading(true);
+      const data = await createAdmin(form);
       setForm({ fullName: "", email: "", password: "" });
       fetchAdmins();
-    } else {
-      alert("Failed to assign admin role.");
+    } catch (err) {
+      alert(err.message || "Failed to assign admin role.");
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleDelete = async (id) => {
     if (!window.confirm("WARNING: Irrevocably destroy this Admin profile?")) return;
-    await fetch(`http://localhost:5000/api/v1/superadmin/delete-admin/${id}`, {
-      method: "DELETE",
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    fetchAdmins();
+    try {
+      await deleteAdmin(id);
+      fetchAdmins();
+    } catch (err) {
+      alert(err.message);
+    }
   };
 
   return (

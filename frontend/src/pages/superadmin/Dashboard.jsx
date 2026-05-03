@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Users, Shield, Building } from "lucide-react";
 import { Card } from "../../components/ui/Card";
+import { getAllUsers, getAllAdmins, getAllUniversities } from "../../services/superadminService";
 
 function Dashboard() {
   const [stats, setStats] = useState({ users: 0, admins: 0, universities: 0 });
@@ -10,17 +11,11 @@ function Dashboard() {
     let isMounted = true;
     const fetchStats = async () => {
       try {
-        const token = localStorage.getItem("token");
-        const h = { Authorization: `Bearer ${token}` };
-        
-        const u = await fetch("http://localhost:5000/api/v1/superadmin/users", { headers: h });
-        const uData = await u.json();
-        
-        const a = await fetch("http://localhost:5000/api/v1/superadmin/admins", { headers: h });
-        const aData = await a.json();
-        
-        const un = await fetch("http://localhost:5000/api/v1/superadmin/universities", { headers: h });
-        const unData = await un.json();
+        const [uData, aData, unData] = await Promise.all([
+          getAllUsers(),
+          getAllAdmins(),
+          getAllUniversities()
+        ]);
 
         if (isMounted) {
           setStats({
@@ -30,7 +25,7 @@ function Dashboard() {
           });
         }
       } catch (err) {
-        console.error(err);
+        console.error(err.message);
       } finally {
         if (isMounted) setLoading(false);
       }

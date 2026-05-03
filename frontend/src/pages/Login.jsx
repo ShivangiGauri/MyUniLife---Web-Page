@@ -32,11 +32,7 @@ function Login() {
       else navigate("/guest/dashboard");
 
     } catch (err) {
-      if (err.response && err.response.data && err.response.data.message) {
-        setErrorMsg(err.response.data.message);
-      } else {
-        setErrorMsg("Server error. Please try again later.");
-      }
+      setErrorMsg(err.message || "Server error. Please try again later.");
     } finally {
       setLoading(false);
     }

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Input } from "./ui/Input";
 import { Button } from "./ui/Button";
 import { X } from "lucide-react";
+import api from "../api/api";
 
 export default function ContactModal({ isOpen, onClose, receiverEmail }) {
   const [toEmail, setToEmail] = useState(receiverEmail || "");
@@ -30,29 +31,13 @@ export default function ContactModal({ isOpen, onClose, receiverEmail }) {
         return;
       }
 
-      const token = localStorage.getItem("token");
-      if (!token) {
-        setStatus("error");
-        setFeedback("Authentication token missing. Please log in.");
-        return;
-      }
-
-      const response = await fetch("http://localhost:5000/api/contact", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          email: toEmail,
-          subject,
-          message
-        })
+      const response = await api.post("/contact", {
+        email: toEmail,
+        subject,
+        message
       });
 
-      const data = await response.json();
-
-      if (response.ok) {
+      if (response.data) {
         setStatus("success");
         setFeedback("Message sent successfully!");
         setTimeout(() => {
@@ -63,14 +48,11 @@ export default function ContactModal({ isOpen, onClose, receiverEmail }) {
           setFeedback("");
           onClose();
         }, 2000);
-      } else {
-        setStatus("error");
-        setFeedback(data.message || data.error || "Failed to send message.");
       }
     } catch (err) {
       console.error(err);
       setStatus("error");
-      setFeedback("An unexpected error occurred.");
+      setFeedback(err.message || "An unexpected error occurred.");
     }
   };
 

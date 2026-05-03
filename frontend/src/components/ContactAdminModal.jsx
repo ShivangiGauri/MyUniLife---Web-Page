@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
+import api from "../api/api";
 
 export default function ContactAdminModal({ onClose }) {
   const [subject, setSubject] = useState("");
@@ -19,23 +20,15 @@ export default function ContactAdminModal({ onClose }) {
     setLoading(true);
 
     try {
-      const response = await fetch("http://localhost:5000/api/contact/send", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          name: userName,
-          email: userEmail,
-          role: userRole,
-          subject,
-          message
-        })
+      const response = await api.post("/contact/send", {
+        name: userName,
+        email: userEmail,
+        role: userRole,
+        subject,
+        message
       });
 
-      const data = await response.json();
-
-      if (data.success) {
+      if (response.data.success) {
         // Fallback save to localStorage for Admin Support Panel rendering
         const messageData = {
           id: Date.now(),
@@ -64,11 +57,9 @@ export default function ContactAdminModal({ onClose }) {
 
         alert("Message sent successfully!");
         onClose();
-      } else {
-        alert("Failed to send message: " + data.error);
       }
-    } catch (error) {
-      alert("Server error");
+    } catch (err) {
+      alert(err.message || "Failed to send message");
     } finally {
       setLoading(false);
     }

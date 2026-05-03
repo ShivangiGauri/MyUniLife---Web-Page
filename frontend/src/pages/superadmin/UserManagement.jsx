@@ -1,22 +1,22 @@
 import { useEffect, useState } from "react";
-import { useAuth } from "../../context/AuthContext";
 import { Filter } from "lucide-react";
+import { getAllUsers } from "../../services/superadminService";
 
 function UserManagement() {
-  const { token } = useAuth();
   const [users, setUsers] = useState([]);
   const [filter, setFilter] = useState("all");
 
   useEffect(() => {
     const fetchUsers = async () => {
-      const res = await fetch("http://localhost:5000/api/v1/superadmin/users", {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      const data = await res.json();
-      if (data.success) setUsers(data.users);
+      try {
+        const data = await getAllUsers();
+        if (data.success) setUsers(data.users);
+      } catch (err) {
+        console.error(err.message);
+      }
     };
     fetchUsers();
-  }, [token]);
+  }, []);
 
   const filteredUsers = filter === "all" ? users : users.filter(u => u.role === filter);
 

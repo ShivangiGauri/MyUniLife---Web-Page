@@ -1,44 +1,45 @@
 import { useEffect, useState } from "react";
-import { useAuth } from "../../context/AuthContext";
 import { Building, Trash2 } from "lucide-react";
+import { getAllUniversities, createUniversity, deleteUniversity } from "../../services/superadminService";
 
 function UniversityManagement() {
-  const { token } = useAuth();
   const [univs, setUnivs] = useState([]);
   const [form, setForm] = useState({ name: "", domain: "", location: "" });
+  const [loading, setLoading] = useState(false);
 
   const fetchUnivs = async () => {
-    const res = await fetch("http://localhost:5000/api/v1/superadmin/universities", {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    const data = await res.json();
-    if (data.success) setUnivs(data.universities);
+    try {
+      const data = await getAllUniversities();
+      if (data.success) setUnivs(data.universities);
+    } catch (err) {
+      console.error(err.message);
+    }
   };
 
   useEffect(() => { fetchUnivs(); }, []);
 
   const handleCreate = async (e) => {
     e.preventDefault();
-    const res = await fetch("http://localhost:5000/api/v1/superadmin/universities", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-      body: JSON.stringify(form)
-    });
-    if (res.ok) {
+    try {
+      setLoading(true);
+      await createUniversity(form);
       setForm({ name: "", domain: "", location: "" });
       fetchUnivs();
-    } else {
-      alert("Failed to map university network.");
+    } catch (err) {
+      alert(err.message || "Failed to map university network.");
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleDelete = async (id) => {
     if (!window.confirm("WARNING: Destroy university cluster structure?")) return;
-    await fetch(`http://localhost:5000/api/v1/superadmin/universities/${id}`, {
-      method: "DELETE",
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    fetchUnivs();
+    try {
+      await deleteUniversity(id);
+      fetchUnivs();
+    } catch (err) {
+      alert(err.message);
+    }
   };
 
   return (

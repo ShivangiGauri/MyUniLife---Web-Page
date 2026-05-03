@@ -14,31 +14,30 @@ import { getEvents, createEvent } from "./controllers/eventController.js";
 
 dotenv.config();
 
-
 const app = express();
 
 app.use(helmet());
 
+// Dynamic CORS configuration
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://127.0.0.1:5173",
+  "https://my-uni-life-web-page.vercel.app",
+  process.env.FRONTEND_URL
+].filter(Boolean);
+
 app.use(cors({
-  origin: [
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
-    "https://my-uni-life-web-page.vercel.app"
-  ],
+  origin: allowedOrigins,
   credentials: true
 }));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Rate limiter removed for development
-
-
-// Static file serving safely
+// Static file serving
 app.use("/uploads", express.static("uploads"));
 
-app.use("/api/events", getEvents); // Fallback for frontend
-
+// API Routes
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/contact", contactRoutes);
 app.use("/api/v1/upload", uploadRoutes);
@@ -46,15 +45,20 @@ app.use("/api/v1/test", testRoutes);
 app.use("/api/v1/admin", adminRoutes);
 app.use("/api/v1/superadmin", superadminRoutes);
 
+// Events Routes (Consistent with v1)
+app.get("/api/v1/events", getEvents);
+app.post("/api/v1/events", createEvent);
+app.get("/api/events", getEvents); // Legacy fallback
 
 // Global Error Handler
 app.use((err, req, res, next) => {
-  console.error(err);
-  res.status(500).json({
-    message: "Internal Server Error",
-    error: err.message
+  console.error("❌ Backend Error:", err.message);
+  res.status(err.status || 500).json({
+    message: err.message || "Internal Server Error",
+    error: process.env.NODE_ENV === "development" ? err.stack : undefined
   });
 });
+
 
 const PORT = process.env.PORT || 5000;
 
