@@ -21,6 +21,7 @@ function Login() {
     setLoading(true);
 
     try {
+      console.log("🚀 Calling:", import.meta.env.VITE_API_BASE_URL + "/auth/login");
       const data = await loginUser(email, password);
       login(data.token, data.user);
       

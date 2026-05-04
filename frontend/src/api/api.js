@@ -3,14 +3,14 @@ import axios from "axios";
 // 🔹 Module-scoped guard to prevent multiple simultaneous logout triggers
 let isLoggingOut = false;
 
-// 🔹 Normalize base URL (no trailing slash)
-export const API_BASE_URL = (
-  import.meta.env.VITE_API_BASE_URL ||
-  import.meta.env.VITE_API_URL ||
-  "https://myunilife-web-page.onrender.com/api/v1"
-).replace(/\/$/, "");
+// 🔹 Strictly use VITE_API_BASE_URL for production reliability
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-console.log("📡 API Base URL:", API_BASE_URL);
+if (!API_BASE_URL) {
+  console.error("❌ API_BASE_URL is NOT defined in environment variables!");
+} else {
+  console.log("✅ API BASE URL:", API_BASE_URL);
+}
 
 // 🔹 Reset guard (used by AuthContext after logout completes)
 export const resetLogoutGuard = () => {
@@ -34,7 +34,7 @@ api.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     } else {
-      delete config.headers.Authorization; // cleanup if no token
+      delete config.headers.Authorization;
     }
 
     return config;
@@ -46,7 +46,6 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    // ✅ Clean error message extraction
     const message =
       error?.response?.data?.message ||
       error?.message ||
@@ -57,10 +56,7 @@ api.interceptors.response.use(
     // ✅ Trigger global logout ONCE on 401
     if (error?.response?.status === 401 && !isLoggingOut) {
       isLoggingOut = true;
-
       console.warn("⚠️ Unauthorized - token may be expired");
-
-      // Notify React app (AuthContext listens to this)
       window.dispatchEvent(new Event("auth:logout"));
     }
 
