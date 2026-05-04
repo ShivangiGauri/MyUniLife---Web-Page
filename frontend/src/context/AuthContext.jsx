@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect } from "react";
-import api, { API_BASE_URL } from "../api/api";
+import api, { resetLogoutGuard } from "../api/api";
 
 const AuthContext = createContext();
 
@@ -10,42 +10,75 @@ export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(localStorage.getItem("token") || null);
   const [loading, setLoading] = useState(true);
 
+  // 🔹 Initial auth check (runs once)
   useEffect(() => {
-    const fetchMe = async () => {
-      if (!token) {
-        setLoading(false);
-        return;
-      }
-      
-      // Do NOT block UI
-      setLoading(false);
-
+    const checkAuth = async () => {
       try {
-        const res = await api.get("/auth/me");
-        if (res.data && res.data.user) {
-          setUser(res.data.user);
+        const storedUser = localStorage.getItem("user");
+        const storedToken = localStorage.getItem("token");
+
+        if (!storedUser || !storedToken) {
+          setLoading(false);
+          return;
         }
+
+        // ✅ Instant restore (prevents flicker)
+        setUser(JSON.parse(storedUser));
+        setToken(storedToken);
+
+        // ✅ Silent backend verification
+        const res = await api.get("/auth/me");
+
+        if (res.data?.user) {
+          setUser(res.data.user);
+          localStorage.setItem("user", JSON.stringify(res.data.user));
+        }
+
       } catch (err) {
-        logout();
+        console.warn("Auth check failed (non-critical):", err.message);
+      } finally {
+        setLoading(false);
       }
     };
-    fetchMe();
-  }, [token]);
 
+    checkAuth();
+  }, []);
+
+  // 🔹 Listen for global logout event (from axios interceptor)
+  useEffect(() => {
+    const handleLogout = () => {
+      // ✅ Prevent duplicate logout
+      if (!token && !user) return;
+
+      console.log("🔄 Auto-logging out due to auth failure...");
+      logout();
+
+      // ✅ Reset guard for future sessions
+      setTimeout(() => {
+        resetLogoutGuard();
+      }, 0);
+    };
+
+    window.addEventListener("auth:logout", handleLogout);
+    return () => window.removeEventListener("auth:logout", handleLogout);
+  }, [token, user]);
+
+  // 🔹 Login
   const login = (newToken, userData) => {
     setToken(newToken);
     setUser(userData);
+
     localStorage.setItem("token", newToken);
-    if (userData?.role) {
-      localStorage.setItem("role", userData.role);
-    }
+    localStorage.setItem("user", JSON.stringify(userData));
   };
 
+  // 🔹 Logout
   const logout = () => {
     setToken(null);
     setUser(null);
+
     localStorage.removeItem("token");
-    localStorage.removeItem("role");
+    localStorage.removeItem("user");
   };
 
   return (

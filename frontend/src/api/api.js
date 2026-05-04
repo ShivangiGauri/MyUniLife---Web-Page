@@ -1,11 +1,23 @@
 import axios from "axios";
 
-// Standardize API_BASE_URL to NOT have a trailing slash
-export const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || "https://myunilife-web-page.onrender.com/api/v1").replace(/\/$/, "");
+// 🔹 Module-scoped guard to prevent multiple simultaneous logout triggers
+let isLoggingOut = false;
+
+// 🔹 Normalize base URL (no trailing slash)
+export const API_BASE_URL = (
+  import.meta.env.VITE_API_BASE_URL ||
+  import.meta.env.VITE_API_URL ||
+  "https://myunilife-web-page.onrender.com/api/v1"
+).replace(/\/$/, "");
 
 console.log("📡 API Base URL:", API_BASE_URL);
 
-// Create a clean axios instance
+// 🔹 Reset guard (used by AuthContext after logout completes)
+export const resetLogoutGuard = () => {
+  isLoggingOut = false;
+};
+
+// 🔹 Axios instance
 const api = axios.create({
   baseURL: API_BASE_URL,
   withCredentials: true,
@@ -14,34 +26,44 @@ const api = axios.create({
   },
 });
 
-// Request interceptor for token injection
+// 🔹 Request interceptor (attach token)
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
+
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+    } else {
+      delete config.headers.Authorization; // cleanup if no token
     }
-    
-    // Debug logging for final URL
-    // Note: Axios baseURL + relative URL with leading slash can be tricky.
-    // We ensure endpoints called with / work correctly with our baseURL.
+
     return config;
   },
   (error) => Promise.reject(error)
 );
 
-// Response interceptor for error handling
+// 🔹 Response interceptor (centralized error handling)
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    const message = error.response?.data?.message || error.message || "Something went wrong";
+    // ✅ Clean error message extraction
+    const message =
+      error?.response?.data?.message ||
+      error?.message ||
+      "Something went wrong";
+
     error.message = message;
-    
-    if (error.response?.status === 401) {
-      localStorage.removeItem("token");
-      localStorage.removeItem("role");
+
+    // ✅ Trigger global logout ONCE on 401
+    if (error?.response?.status === 401 && !isLoggingOut) {
+      isLoggingOut = true;
+
+      console.warn("⚠️ Unauthorized - token may be expired");
+
+      // Notify React app (AuthContext listens to this)
+      window.dispatchEvent(new Event("auth:logout"));
     }
-    
+
     return Promise.reject(error);
   }
 );
