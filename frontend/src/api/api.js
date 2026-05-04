@@ -3,14 +3,15 @@ import axios from "axios";
 // 🔹 Module-scoped guard to prevent multiple simultaneous logout triggers
 let isLoggingOut = false;
 
-// 🔹 Strictly use VITE_API_BASE_URL for production reliability
+// 🔹 STRICT MODE: Force VITE_API_BASE_URL check
 export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 if (!API_BASE_URL) {
-  console.error("❌ API_BASE_URL is NOT defined in environment variables!");
-} else {
-  console.log("✅ API BASE URL:", API_BASE_URL);
+  // Use a throw here to catch production configuration issues immediately
+  throw new Error("❌ VITE_API_BASE_URL is NOT defined. Fix your Vercel env.");
 }
+
+console.log("✅ API BASE URL:", API_BASE_URL);
 
 // 🔹 Reset guard (used by AuthContext after logout completes)
 export const resetLogoutGuard = () => {
